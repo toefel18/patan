@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>nl.toefel</groupId>
-    <artifactId>measure</artifactId>
+    <artifactId>java-code-measurements</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
