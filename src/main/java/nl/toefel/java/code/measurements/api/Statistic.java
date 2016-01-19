@@ -17,15 +17,15 @@
 package nl.toefel.java.code.measurements.api;
 
 /**
- * Represents the calculated statistics for the sample with the name {@link #getEventName()}. The statistics should be
+ * Represents the calculated statistics for the sample with the name {@link #getName()}. The statistics should be
  * interpreted as statistics of a sample, not the full population.
  */
-public interface Statistic {
+public interface Statistic extends Comparable<Statistic> {
 
 	/**
 	 * @return the event name
 	 */
-	String getEventName();
+	String getName();
 
 	/**
 	 * @return true if there were any samples actually recorded, false indicates that the statistical methods will return defaults.

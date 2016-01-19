@@ -17,28 +17,33 @@
 package nl.toefel.java.code.measurements.api;
 
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Methods for querying the statistics store
+ */
 public interface Query {
 
 	/**
 	 * Finds the current statistical value for the event with the given eventName. If the eventName has not been found,
-	 * a empty statistic will be returned.
+	 * a empty statistic will be returned, use the {@link Statistic#isValid()} method to check if a statistic with values
+	 * was returned.
 	 *
 	 * @param eventName the name of the event to lookup
 	 * @return a copy of the internal statistic, never null
 	 */
-	Statistic findByName(String eventName);
+	Statistic findStatistic(String eventName);
 
 	/**
 	 * @return a snapshot of all
 	 */
-	List<Statistic> getSnapshot();
+	Map<String, Statistic> getSnapshot();
 
 	/**
 	 * Retrieves the current collected statistics and returns them. All the current statistics are cleared.
 	 * @return the snapshot and clears the cur
 	 */
-	List<Statistic> getSnapshotAndReset();
+	Map<String, Statistic> getSnapshotAndReset();
 
 	/**
 	 * Clears all currently collected statistics

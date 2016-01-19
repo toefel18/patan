@@ -14,11 +14,18 @@
  *    limitations under the License.
  */
 
-package nl.toefel.java.code.measurements.api;
+package nl.toefel.java.code.measurements.referenceimpl;
 
 /**
- * This is the interface that implementations should implement.
+ * @author hestersco
  */
-public interface StatisticsFacade extends DurationStore, OccurrenceStore, SampleStore, Query {
+public class TimingHelper {
 
+	public static void sleep(int millis) {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			throw new IllegalStateException(e);
+		}
+	}
 }
