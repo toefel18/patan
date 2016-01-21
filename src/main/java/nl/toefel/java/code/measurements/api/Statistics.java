@@ -19,6 +19,6 @@ package nl.toefel.java.code.measurements.api;
 /**
  * This is the interface that implementations should implement.
  */
-public interface StatisticsFacade extends DurationStore, OccurrenceStore, SampleStore, Query {
+public interface Statistics extends DurationStore, OccurrenceStore, SampleStore, Query {
 
 }

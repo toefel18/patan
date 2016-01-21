@@ -30,7 +30,7 @@ public interface Statistic extends Comparable<Statistic> {
 	/**
 	 * @return true if there were any samples actually recorded, false indicates that the statistical methods will return defaults.
 	 */
-	boolean isValid();
+	boolean isEmpty();
 
 	/**
 	 * @return the number of times this event has occurred.
@@ -50,16 +50,16 @@ public interface Statistic extends Comparable<Statistic> {
 	/**
 	 * @return average of all samples
 	 */
-	double getAverage();
+	double getSampleAverage();
 
 	/**
 	 * @return sample variance
 	 */
-	double getVariance();
+	double getSampleVariance();
 
 	/**
 	 * @return sample standard deviation.
 	 */
-	double getStdDev();
+	double getSampleStdDeviation();
 
 }

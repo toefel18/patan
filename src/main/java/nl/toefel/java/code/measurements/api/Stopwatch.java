@@ -17,13 +17,13 @@
 package nl.toefel.java.code.measurements.api;
 
 /**
- * Interface for an object that measures elapsed time. The time does not have to related to any time system. The resolution
+ * Interface for an object that measures elapsed time. The time does not have to related to any time system. The precision
  * of the stopwatch is milliseconds.
  */
 public interface Stopwatch {
 
 	/**
-	 * @return the elapsed time since the creation of this StopWatch in millisecond resolution.
+	 * @return the elapsed time since the creation of this StopWatch in millisecond precision.
 	 */
 	long elapsedMillis();
 }

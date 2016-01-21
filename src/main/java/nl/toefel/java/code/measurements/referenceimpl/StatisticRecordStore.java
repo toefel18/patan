@@ -18,48 +18,49 @@ package nl.toefel.java.code.measurements.referenceimpl;
 
 import nl.toefel.java.code.measurements.api.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static nl.toefel.java.code.measurements.referenceimpl.StatisticRecord.copyOf;
 
-public class StatisticalRecordStore implements Query {
+public class StatisticRecordStore  {
 
-	private Map<String, StatisticRecord> recordsByName = new HashMap<String, StatisticRecord>();
+	private Map<String, StatisticRecord> recordsByName = new ConcurrentHashMap<String, StatisticRecord>();
 
 	public void addSample(String eventName, long value) {
-
+		// not threadsafe
+		if (recordsByName.containsKey(eventName)) {
+			recordsByName.put(eventName, recordsByName.get(eventName).addSample(value));
+		} else {
+			recordsByName.put(eventName, StatisticRecord.createWithSingleSample(eventName, value));
+		}
 	}
 
-	@Override
 	public Statistic findStatistic(final String eventName) {
 		Statistic statistic = recordsByName.get(eventName);
 		if (statistic == null) {
-			return StatisticRecord.create(eventName);
+			return StatisticRecord.createEmpty(eventName);
 		} else {
 			return statistic;
 		}
 	}
 
-	@Override
-	public Map<String, Statistic> getSnapshot() {
-		Map<String, Statistic> snapshot = new HashMap<String, Statistic>();
+	public SortedMap<String, Statistic> getSortedSnapshot() {
+		SortedMap<String, Statistic> snapshot = new TreeMap<String, Statistic>();
 		for (String name: recordsByName.keySet()) {
 			snapshot.put(name, copyOf(recordsByName.get(name)));
 		}
 		return snapshot;
 	}
 
-	@Override
-	public Map<String, Statistic> getSnapshotAndReset() {
-		Map<String, Statistic> snapshot = getSnapshot();
-		reset();
-		return snapshot;
+	public SortedMap<String, Statistic> getSortedSnapshotAndReset() {
+		try {
+			return getSortedSnapshot();
+		} finally {
+			reset();
+		}
 	}
 
-	@Override
 	public void reset() {
 		recordsByName = new HashMap<String, StatisticRecord>();
 	}

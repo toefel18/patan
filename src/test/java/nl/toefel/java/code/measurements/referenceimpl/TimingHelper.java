@@ -21,9 +21,9 @@ package nl.toefel.java.code.measurements.referenceimpl;
  */
 public class TimingHelper {
 
-	public static void sleep(int millis) {
+	public static void expensiveMethodTakingMillis(int millis) {
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(millis);
 		} catch (InterruptedException e) {
 			throw new IllegalStateException(e);
 		}
