@@ -16,9 +16,6 @@
 
 package nl.toefel.java.code.measurements.referenceimpl;
 
-/**
- * @author hestersco
- */
 public class TimingHelper {
 
 	public static void expensiveMethodTakingMillis(int millis) {

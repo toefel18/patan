@@ -24,7 +24,7 @@ import org.junit.Test;
 import java.util.Map;
 
 import static nl.toefel.java.code.measurements.referenceimpl.AssertionHelper.assertRecordHasExactParameters;
-import static nl.toefel.java.code.measurements.referenceimpl.AssertionHelper.assertRecordHasParametersWithin100;
+import static nl.toefel.java.code.measurements.referenceimpl.AssertionHelper.assertRecordHasParametersWithin;
 import static nl.toefel.java.code.measurements.referenceimpl.TimingHelper.expensiveMethodTakingMillis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -69,7 +69,26 @@ public class StatisticsTest {
 		stats.recordElapsedTime("test.duration", stopwatch);
 
 		Statistic record = stats.findStatistic("test.duration");
-		assertRecordHasParametersWithin100(record, "test.duration", 1, 100, 100, 100, 0, Double.NaN);
+
+		assertRecordHasParametersWithin(record, "test.duration", 1, 100, 100, 100, 20);
+		assertThat(record.getSampleVariance()).as("variance").isCloseTo(0.0d, within(0.0d));
+		assertThat(record.getSampleStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
+	}
+
+	@Test
+	public void testRecordElapsedTimeMultiple() {
+		Stopwatch stopwatch = stats.startStopwatch();
+		expensiveMethodTakingMillis(80);
+		stats.recordElapsedTime("test.duration", stopwatch);
+
+		Stopwatch anotherStopwatch = stats.startStopwatch();
+		expensiveMethodTakingMillis(150);
+		stats.recordElapsedTime("test.duration", anotherStopwatch);
+
+		Statistic record = stats.findStatistic("test.duration");
+		assertRecordHasParametersWithin(record, "test.duration", 2, 80, 150, 115.0d, 20);
+		assertThat(record.getSampleVariance()).as("variance").isCloseTo(2450.0d, within(200.0d));
+		assertThat(record.getSampleStdDeviation()).as("standardDeviation").isCloseTo(50, within(5.0d));
 	}
 
 	@Test

@@ -64,7 +64,11 @@ public class OccurrenceRecord implements Statistic {
 
 	@Override
 	public int compareTo(final Statistic o) {
-		return 0;
+		if (o == null) {
+			return -1;
+		} else {
+			return name.compareTo(o.getName());
+		}
 	}
 
 	@Override
@@ -74,14 +78,13 @@ public class OccurrenceRecord implements Statistic {
 
 		OccurrenceRecord that = (OccurrenceRecord) o;
 
-		return count==that.count && name.equals(that.name);
+		return name.equals(that.name);
+
 	}
 
 	@Override
 	public int hashCode() {
-		int result = name.hashCode();
-		result = 31 * result + (int) (count ^ (count >>> 32));
-		return result;
+		return name.hashCode();
 	}
 
 	@Override

@@ -53,14 +53,6 @@ public class StatisticRecordStore  {
 		return snapshot;
 	}
 
-	public SortedMap<String, Statistic> getSortedSnapshotAndReset() {
-		try {
-			return getSortedSnapshot();
-		} finally {
-			reset();
-		}
-	}
-
 	public void reset() {
 		recordsByName = new HashMap<String, StatisticRecord>();
 	}

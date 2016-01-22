@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Holds several counters in a more efficient manner than using locking.
+ * Holds counters in a more efficient manner than using locking.
  */
 public class CounterStore implements OccurrenceStore {
 
@@ -47,9 +47,6 @@ public class CounterStore implements OccurrenceStore {
 		}
 	}
 
-	/**
-	 * @return The intial value of
-	 */
 	public Map<String, Long> getSnapshot() {
 		Map<String, Long> countersSnapshot = new HashMap<String, Long>();
 		for (Map.Entry<String, AtomicLong> entry : counters.entrySet()) {
@@ -58,14 +55,4 @@ public class CounterStore implements OccurrenceStore {
 		return countersSnapshot;
 	}
 
-	/**
-	 * @return The intial value of
-	 */
-	public Map<String, Long> getSnapshotAndReset() {
-		try {
-			return getSnapshot();
-		} finally {
-			reset();
-		}
-	}
 }

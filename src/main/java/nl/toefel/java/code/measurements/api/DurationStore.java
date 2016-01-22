@@ -18,7 +18,6 @@ package nl.toefel.java.code.measurements.api;
 
 /**
  * Methods for measuring elapsed time during program execution.
- *
  */
 public interface DurationStore {
 

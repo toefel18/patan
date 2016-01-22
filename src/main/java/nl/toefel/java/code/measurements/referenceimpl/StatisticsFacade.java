@@ -71,7 +71,7 @@ public class StatisticsFacade implements Statistics {
 
 	@Override
 	public SortedMap<String, Statistic> getSortedSnapshot() {
-		SortedMap<String, Statistic> statistics = statsStore.getSortedSnapshotAndReset();
+		SortedMap<String, Statistic> statistics = statsStore.getSortedSnapshot();
 		Map<String, Long> counters = counterStore.getSnapshot();
 		addCountersAsStatisticRecords(statistics, counters);
 		return statistics;
