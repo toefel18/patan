@@ -1,2 +1,4 @@
 .idea
 java-code-measurements.iml
+target/
+patan.iml
