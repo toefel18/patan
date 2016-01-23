@@ -37,7 +37,7 @@ class FindStatisticTask extends ConcurrentTask {
             assertThat(statistic).isNotNull();
         } catch (Throwable t) {
             failed = true;
-            t.printStackTrace();
+            System.out.println(t.getMessage());
         }
     }
 }

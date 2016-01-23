@@ -34,7 +34,7 @@ class GetSnapshotTask extends ConcurrentTask {
             assertThat(ConcurrencyTestBase.subject.getSortedSnapshot()).isNotNull();
         } catch (Throwable t) {
             failed = true;
-            t.printStackTrace();
+            System.out.println(t.getMessage());
         }
     }
 }
