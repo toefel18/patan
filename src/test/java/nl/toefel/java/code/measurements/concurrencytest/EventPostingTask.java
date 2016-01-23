@@ -27,6 +27,7 @@ public abstract class EventPostingTask implements Runnable {
     private final String eventName;
     private final int timesToPost;
     private volatile int timesPosted;
+    protected volatile boolean failed = false;
 
     public EventPostingTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
         this.starter = starter;
@@ -60,5 +61,9 @@ public abstract class EventPostingTask implements Runnable {
 
     public int getEventsPosted() {
         return timesPosted;
+    }
+
+    public boolean isFailed() {
+        return failed;
     }
 }

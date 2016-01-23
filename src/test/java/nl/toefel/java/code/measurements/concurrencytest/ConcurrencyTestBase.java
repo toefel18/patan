@@ -34,6 +34,7 @@ public abstract class ConcurrencyTestBase {
     private static final String OCCURRENCE_EVENT = "occurrence";
     private static final String SAMPLE_EVENT = "sample";
     private static final String DURATION_EVENT = "duration";
+    private static final String FIND_STATISTIC_EVENT = "findstatistic";
 
     private CountDownLatch starter;
     private CountDownLatch finisher;
@@ -47,8 +48,10 @@ public abstract class ConcurrencyTestBase {
     void setupTestForAllSampleMethods(int occurrencePosters,
                                       int samplePosters,
                                       int durationPosters,
+                                      int snapshotPosters,
+                                      int findStatisticPosters,
                                       int loopsPerPoster) {
-        int totalThreads = occurrencePosters + samplePosters + durationPosters;
+        int totalThreads = occurrencePosters + samplePosters + durationPosters + snapshotPosters + findStatisticPosters;
         subject = createStatistics();
         starter = new CountDownLatch(1);
         finisher = new CountDownLatch(totalThreads);
@@ -56,6 +59,9 @@ public abstract class ConcurrencyTestBase {
         addConcurrentTasks(OCCURRENCE_POSTER_FACTORY, OCCURRENCE_EVENT, occurrencePosters, loopsPerPoster);
         addConcurrentTasks(SAMPLE_POSTER_FACTORY, SAMPLE_EVENT, samplePosters, loopsPerPoster);
         addConcurrentTasks(DURATION_POSTER_FACTORY, DURATION_EVENT, durationPosters, loopsPerPoster);
+        addConcurrentTasks(GET_SNAPSHOT_POSTER_FACTORY, "", snapshotPosters, loopsPerPoster);
+        addConcurrentTasks(FIND_STATISTIC_POSTER_FACTORY, FIND_STATISTIC_EVENT, findStatisticPosters, loopsPerPoster);
+
         assertThat(concurrentTasks).hasSize(totalThreads);
         prepareThreads();
         System.out.println(String.format("created %d threads ready to fire", concurrentTasks.size()));
@@ -88,15 +94,24 @@ public abstract class ConcurrencyTestBase {
     private int countEventsPostedByTasks(String occurrenceEvent) {
         int eventsPostedForKey = 0;
         for (EventPostingTask task : concurrentTasks) {
-            if (occurrenceEvent.equals(task.getEventName())){
+            if (occurrenceEvent.equals(task.getEventName())) {
                 eventsPostedForKey += task.getEventsPosted();
             }
         }
         return eventsPostedForKey;
     }
 
-    protected void runConcurrencyTest(int occurrenceThreads, int samplesThreads, int durationsThreads, int loopsPerThread) {
-        setupTestForAllSampleMethods(occurrenceThreads, samplesThreads, durationsThreads, loopsPerThread);
+    protected void runConcurrencyTest(int threadsPerTask, int loopsPerThread) {
+        runConcurrencyTest(threadsPerTask, threadsPerTask, threadsPerTask, threadsPerTask, threadsPerTask, loopsPerThread);
+    }
+
+    protected void runConcurrencyTest(int occurrenceThreads,
+                                      int samplesThreads,
+                                      int durationsThreads,
+                                      int snapshotThreads,
+                                      int findStatisticThreads,
+                                      int loopsPerThread) {
+        setupTestForAllSampleMethods(occurrenceThreads, samplesThreads, durationsThreads, snapshotThreads, findStatisticThreads, loopsPerThread);
 
         start();
         waitTillAllTasksFinish();
@@ -105,6 +120,13 @@ public abstract class ConcurrencyTestBase {
         assertThat(statistics).hasSize(3).containsOnlyKeys(OCCURRENCE_EVENT, SAMPLE_EVENT, DURATION_EVENT);
         assertSampleCountIsAsExpected(occurrenceThreads, samplesThreads, durationsThreads, loopsPerThread, statistics);
         assertSampleCountIsSameAsPostedEventsByTasks(statistics);
+        assertNoTasksIndicateFailure();
+    }
+
+    private void assertNoTasksIndicateFailure() {
+        for (EventPostingTask task : concurrentTasks) {
+            assertThat(task.isFailed()).as("one or more tasks indicate failure").isFalse();
+        }
     }
 
     private void assertSampleCountIsAsExpected(int occurrenceThreads,

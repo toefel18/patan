@@ -39,7 +39,21 @@ public enum PosterFactory {
         public EventPostingTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
             return new SamplePoster(starter, finisher, eventName, timesToPost);
         }
+    },
+    GET_SNAPSHOT_POSTER_FACTORY {
+        @Override
+        public EventPostingTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+            return new GetSnapshotPoster(starter, finisher, eventName, timesToPost);
+        }
+    },
+    FIND_STATISTIC_POSTER_FACTORY {
+        @Override
+        public EventPostingTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+            return new FindStatisticPoster(starter, finisher, eventName, timesToPost);
+        }
     };
+
+
 
     public abstract EventPostingTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost);
 }
