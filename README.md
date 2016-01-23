@@ -7,17 +7,20 @@ There are multiple ways for measuring the performance of code, sampling and inst
 This is a sampling library that provides:
   - counters, keeping track of how many *something* has taken place
   - sampling, collecting samples and describing it's distribution
-  - durations, measuring the duration of a task as a special case of sampling 
+  - durations, measuring the duration of a task as a special case of sampling
+  - no transitive dependencies!
 
 The library provides an API and comes with a default implementation safe to be used in a multi-threaded environment. 
-  
+
+Java 6+
+
 Some examples:
 
 ```java
  // you can expose this instance application wide using an Enum, Singleton or perhaps as a spring-bean
- public static final Statistics STATISTICS = new StatisticsFacade();
+ public static final Statistics STATISTICS = StatisticsFactory.createThreadsafeStatistics();
  ...
- 
+
  // counters
  public void onMessage(Message message) {
     STATISTICS.addOccurrence("jms.message.received");
