@@ -18,6 +18,7 @@
 
 package nl.toefel.java.code.measurements.referenceimpl;
 
+import nl.toefel.java.code.measurements.StatisticsFactory;
 import nl.toefel.java.code.measurements.api.Statistic;
 import nl.toefel.java.code.measurements.api.Statistics;
 import nl.toefel.java.code.measurements.referenceimpl.concurrency.EventPostingTask;
@@ -50,7 +51,7 @@ public class ConcurrencyTest {
                                       int durationPosters,
                                       int loopsPerPoster) {
         int totalThreads = occurrencePosters + samplePosters + durationPosters;
-        subject = new SynchronizedStatistics(new StatisticsFacade());
+        subject = StatisticsFactory.createThreadsafeStatistics();
         starter = new CountDownLatch(1);
         finisher = new CountDownLatch(totalThreads);
         concurrentTasks = new ArrayList<EventPostingTask>();
@@ -100,27 +101,27 @@ public class ConcurrencyTest {
 
     @Test
     public void testConcurrencyOneThreadEach() {
-        runConcurrencyTest(1, 1, 1, 1000);
+        runConcurrencyTest(1, 1, 1, 10000);
     }
 
     @Test
     public void testConcurrencyTwoThreadEach() {
-        runConcurrencyTest(2, 2, 2, 1000);
+        runConcurrencyTest(2, 2, 2, 10000);
     }
 
     @Test
     public void testConcurrencyTenThreadsEach() {
-        runConcurrencyTest(10, 10, 10, 1000);
+        runConcurrencyTest(10, 10, 10, 10000);
     }
 
     @Test
     public void testConcurrencyHundredThreadsEach() {
-        runConcurrencyTest(100, 100, 100, 1000);
+        runConcurrencyTest(100, 100, 100, 10000);
     }
 
     @Test
     public void testConcurrencyFiveHundredThreadsEach() {
-        runConcurrencyTest(500, 500, 500, 1000);
+        runConcurrencyTest(500, 500, 500, 10000);
     }
 }
 
