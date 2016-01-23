@@ -1,7 +1,6 @@
 # Small Java library for sampling code.
 
-![travis-ci](https://travis-ci.org/toefel18/patan.svg?branch=master "build")
-
+![travis-ci](https://travis-ci.org/toefel18/patan.svg?branch=master "build")  ![codecov.io](https://codecov.io/github/toefel18/patan/coverage.svg?branch=master "coverage")
 
 There are multiple ways for measuring the performance of code, sampling and instrumentation. Instrumentation modifies the original program's byte code by inserting measurement code. Sampling is done by programming the measurement code manually. 
 
