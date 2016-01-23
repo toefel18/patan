@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import static nl.toefel.java.code.measurements.concurrencytest.PosterFactory.*;
+import static nl.toefel.java.code.measurements.concurrencytest.TaskFactory.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class ConcurrencyTestBase {
@@ -39,42 +39,42 @@ public abstract class ConcurrencyTestBase {
     private CountDownLatch starter;
     private CountDownLatch finisher;
 
-    private List<EventPostingTask> concurrentTasks;
+    private List<ConcurrentTask> concurrentTasks;
 
     public static Statistics subject;
 
     protected abstract Statistics createStatistics();
 
-    void setupTestForAllSampleMethods(int occurrencePosters,
-                                      int samplePosters,
-                                      int durationPosters,
-                                      int snapshotPosters,
-                                      int findStatisticPosters,
-                                      int loopsPerPoster) {
-        int totalThreads = occurrencePosters + samplePosters + durationPosters + snapshotPosters + findStatisticPosters;
+    void setupTestForAllSampleMethods(int occurrenceThreads,
+                                      int sampleThreads,
+                                      int durationThreads,
+                                      int snapshotThreads,
+                                      int findStatisticThreads,
+                                      int loopsPerThread) {
+        int totalThreads = occurrenceThreads + sampleThreads + durationThreads + snapshotThreads + findStatisticThreads;
         subject = createStatistics();
         starter = new CountDownLatch(1);
         finisher = new CountDownLatch(totalThreads);
-        concurrentTasks = new ArrayList<EventPostingTask>();
-        addConcurrentTasks(OCCURRENCE_POSTER_FACTORY, OCCURRENCE_EVENT, occurrencePosters, loopsPerPoster);
-        addConcurrentTasks(SAMPLE_POSTER_FACTORY, SAMPLE_EVENT, samplePosters, loopsPerPoster);
-        addConcurrentTasks(DURATION_POSTER_FACTORY, DURATION_EVENT, durationPosters, loopsPerPoster);
-        addConcurrentTasks(GET_SNAPSHOT_POSTER_FACTORY, "", snapshotPosters, loopsPerPoster);
-        addConcurrentTasks(FIND_STATISTIC_POSTER_FACTORY, FIND_STATISTIC_EVENT, findStatisticPosters, loopsPerPoster);
+        concurrentTasks = new ArrayList<ConcurrentTask>();
+        addConcurrentTasks(OCCURRENCE_TASK_FACTORY, OCCURRENCE_EVENT, occurrenceThreads, loopsPerThread);
+        addConcurrentTasks(SAMPLE_TASK_FACTORY, SAMPLE_EVENT, sampleThreads, loopsPerThread);
+        addConcurrentTasks(DURATION_TASK_FACTORY, DURATION_EVENT, durationThreads, loopsPerThread);
+        addConcurrentTasks(GET_SNAPSHOT_TASK_FACTORY, "", snapshotThreads, loopsPerThread);
+        addConcurrentTasks(FIND_STATISTIC_TASK_FACTORY, FIND_STATISTIC_EVENT, findStatisticThreads, loopsPerThread);
 
         assertThat(concurrentTasks).hasSize(totalThreads);
         prepareThreads();
         System.out.println(String.format("created %d threads ready to fire", concurrentTasks.size()));
     }
 
-    void addConcurrentTasks(PosterFactory factory, String eventName, int instances, int loops) {
+    void addConcurrentTasks(TaskFactory factory, String eventName, int instances, int loops) {
         for (int i = 0; i < instances; i++) {
             concurrentTasks.add(factory.create(starter, finisher, eventName, loops));
         }
     }
 
     void prepareThreads() {
-        for (EventPostingTask task : concurrentTasks) {
+        for (ConcurrentTask task : concurrentTasks) {
             new Thread(task).start();
         }
     }
@@ -93,7 +93,7 @@ public abstract class ConcurrencyTestBase {
 
     private int countEventsPostedByTasks(String occurrenceEvent) {
         int eventsPostedForKey = 0;
-        for (EventPostingTask task : concurrentTasks) {
+        for (ConcurrentTask task : concurrentTasks) {
             if (occurrenceEvent.equals(task.getEventName())) {
                 eventsPostedForKey += task.getEventsPosted();
             }
@@ -124,7 +124,7 @@ public abstract class ConcurrencyTestBase {
     }
 
     private void assertNoTasksIndicateFailure() {
-        for (EventPostingTask task : concurrentTasks) {
+        for (ConcurrentTask task : concurrentTasks) {
             assertThat(task.isFailed()).as("one or more tasks indicate failure").isFalse();
         }
     }

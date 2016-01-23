@@ -20,14 +20,14 @@ package nl.toefel.java.code.measurements.concurrencytest;
 
 import java.util.concurrent.CountDownLatch;
 
-class OccurrencePoster extends EventPostingTask {
+class SampleTask extends ConcurrentTask {
 
-    public OccurrencePoster(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+    public SampleTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
         super(starter, finisher, eventName, timesToPost);
     }
 
     @Override
     protected void doPost(String eventName) {
-        ConcurrencyTestBase.subject.addOccurrence(eventName);
+        ConcurrencyTestBase.subject.addSample(eventName, 1 + getEventsPosted());
     }
 }

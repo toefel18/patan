@@ -20,7 +20,7 @@ package nl.toefel.java.code.measurements.concurrencytest;
 
 import java.util.concurrent.CountDownLatch;
 
-public abstract class EventPostingTask implements Runnable {
+public abstract class ConcurrentTask implements Runnable {
     private final CountDownLatch starter;
     private final CountDownLatch finisher;
 
@@ -29,7 +29,7 @@ public abstract class EventPostingTask implements Runnable {
     private volatile int timesPosted;
     protected volatile boolean failed = false;
 
-    public EventPostingTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+    public ConcurrentTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
         this.starter = starter;
         this.finisher = finisher;
         this.eventName = eventName;

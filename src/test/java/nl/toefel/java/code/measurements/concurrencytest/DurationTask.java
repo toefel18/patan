@@ -18,23 +18,21 @@
 
 package nl.toefel.java.code.measurements.concurrencytest;
 
+import nl.toefel.java.code.measurements.api.Stopwatch;
+
 import java.util.concurrent.CountDownLatch;
 
-import static org.assertj.core.api.Assertions.assertThat;
+class DurationTask extends ConcurrentTask {
 
-class GetSnapshotPoster extends EventPostingTask {
+    private final Stopwatch sw;
 
-    public GetSnapshotPoster(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+    public DurationTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
         super(starter, finisher, eventName, timesToPost);
+        sw = ConcurrencyTestBase.subject.startStopwatch();
     }
 
     @Override
     protected void doPost(String eventName) {
-        try {
-            assertThat(ConcurrencyTestBase.subject.getSortedSnapshot()).isNotNull();
-        } catch (Throwable t) {
-            failed = true;
-            t.printStackTrace();
-        }
+        ConcurrencyTestBase.subject.recordElapsedTime(eventName, sw);
     }
 }

@@ -18,23 +18,20 @@
 
 package nl.toefel.java.code.measurements.concurrencytest;
 
-import nl.toefel.java.code.measurements.api.Statistic;
-
 import java.util.concurrent.CountDownLatch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class FindStatisticPoster extends EventPostingTask {
+class GetSnapshotTask extends ConcurrentTask {
 
-    public FindStatisticPoster(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+    public GetSnapshotTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
         super(starter, finisher, eventName, timesToPost);
     }
 
     @Override
     protected void doPost(String eventName) {
         try {
-            Statistic statistic = ConcurrencyTestBase.subject.findStatistic(eventName);
-            assertThat(statistic).isNotNull();
+            assertThat(ConcurrencyTestBase.subject.getSortedSnapshot()).isNotNull();
         } catch (Throwable t) {
             failed = true;
             t.printStackTrace();
