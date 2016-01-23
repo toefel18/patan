@@ -16,7 +16,7 @@
  *
  */
 
-package nl.toefel.java.code.measurements.referenceimpl.concurrency;
+package nl.toefel.java.code.measurements.concurrencytest;
 
 import java.util.concurrent.CountDownLatch;
 

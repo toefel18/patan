@@ -26,9 +26,9 @@ import java.util.SortedMap;
 import static nl.toefel.java.code.measurements.referenceimpl.OccurrenceRecord.createCounterStatistic;
 
 /**
- *
+ * Statistics implementation suitable for single-threaded applications.
  */
-public class StatisticsFacade implements Statistics {
+public class SingleThreadStatisticsFacade implements Statistics {
 
 	private final StatisticRecordStore statsStore = new StatisticRecordStore();
 

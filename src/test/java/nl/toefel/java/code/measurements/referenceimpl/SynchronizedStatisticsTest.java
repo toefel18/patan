@@ -16,20 +16,15 @@
  *
  */
 
-package nl.toefel.java.code.measurements.referenceimpl.concurrency;
+package nl.toefel.java.code.measurements.referenceimpl;
 
-import nl.toefel.java.code.measurements.referenceimpl.ConcurrencyTest;
+import nl.toefel.java.code.measurements.StatisticsFactory;
+import nl.toefel.java.code.measurements.StatisticsApiTestBase;
+import nl.toefel.java.code.measurements.api.Statistics;
 
-import java.util.concurrent.CountDownLatch;
-
-class SamplePoster extends EventPostingTask {
-
-    public SamplePoster(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
-        super(starter, finisher, eventName, timesToPost);
-    }
-
+public class SynchronizedStatisticsTest extends StatisticsApiTestBase {
     @Override
-    protected void doPost(String eventName) {
-        ConcurrencyTest.subject.addSample(eventName, 1 + getTimesPosted());
+    protected Statistics createStatistics() {
+        return StatisticsFactory.createThreadsafeStatistics();
     }
 }

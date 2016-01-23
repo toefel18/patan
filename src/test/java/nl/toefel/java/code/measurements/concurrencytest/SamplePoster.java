@@ -16,20 +16,18 @@
  *
  */
 
-package nl.toefel.java.code.measurements.referenceimpl.concurrency;
-
-import nl.toefel.java.code.measurements.referenceimpl.ConcurrencyTest;
+package nl.toefel.java.code.measurements.concurrencytest;
 
 import java.util.concurrent.CountDownLatch;
 
-class OccurrencePoster extends EventPostingTask {
+class SamplePoster extends EventPostingTask {
 
-    public OccurrencePoster(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+    public SamplePoster(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
         super(starter, finisher, eventName, timesToPost);
     }
 
     @Override
     protected void doPost(String eventName) {
-        ConcurrencyTest.subject.addOccurrence(eventName);
+        ConcurrencyTestBase.subject.addSample(eventName, 1 + getEventsPosted());
     }
 }

@@ -16,24 +16,15 @@
  *
  */
 
-package nl.toefel.java.code.measurements.referenceimpl.concurrency;
+package nl.toefel.java.code.measurements.referenceimpl;
 
-import nl.toefel.java.code.measurements.api.Stopwatch;
-import nl.toefel.java.code.measurements.referenceimpl.ConcurrencyTest;
+import nl.toefel.java.code.measurements.StatisticsFactory;
+import nl.toefel.java.code.measurements.StatisticsApiTestBase;
+import nl.toefel.java.code.measurements.api.Statistics;
 
-import java.util.concurrent.CountDownLatch;
-
-class DurationPoster extends EventPostingTask {
-
-    private final Stopwatch sw;
-
-    public DurationPoster(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
-        super(starter, finisher, eventName, timesToPost);
-        sw = ConcurrencyTest.subject.startStopwatch();
-    }
-
+public class SingleThreadedStatisticsFacadeTest extends StatisticsApiTestBase {
     @Override
-    protected void doPost(String eventName) {
-        ConcurrencyTest.subject.recordElapsedTime(eventName, sw);
+    protected Statistics createStatistics() {
+        return StatisticsFactory.createSingleThreadedStatistics();
     }
 }

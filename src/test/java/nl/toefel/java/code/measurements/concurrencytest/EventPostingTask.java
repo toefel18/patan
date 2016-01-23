@@ -16,7 +16,7 @@
  *
  */
 
-package nl.toefel.java.code.measurements.referenceimpl.concurrency;
+package nl.toefel.java.code.measurements.concurrencytest;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -58,7 +58,7 @@ public abstract class EventPostingTask implements Runnable {
         return eventName;
     }
 
-    public int getTimesPosted() {
+    public int getEventsPosted() {
         return timesPosted;
     }
 }

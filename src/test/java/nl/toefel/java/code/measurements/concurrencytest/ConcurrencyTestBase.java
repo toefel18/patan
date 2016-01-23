@@ -16,24 +16,20 @@
  *
  */
 
-package nl.toefel.java.code.measurements.referenceimpl;
+package nl.toefel.java.code.measurements.concurrencytest;
 
-import nl.toefel.java.code.measurements.StatisticsFactory;
 import nl.toefel.java.code.measurements.api.Statistic;
 import nl.toefel.java.code.measurements.api.Statistics;
-import nl.toefel.java.code.measurements.referenceimpl.concurrency.EventPostingTask;
-import nl.toefel.java.code.measurements.referenceimpl.concurrency.PosterFactory;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import static nl.toefel.java.code.measurements.referenceimpl.concurrency.PosterFactory.*;
+import static nl.toefel.java.code.measurements.concurrencytest.PosterFactory.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ConcurrencyTest {
+public abstract class ConcurrencyTestBase {
 
     private static final String OCCURRENCE_EVENT = "occurrence";
     private static final String SAMPLE_EVENT = "sample";
@@ -46,12 +42,14 @@ public class ConcurrencyTest {
 
     public static Statistics subject;
 
+    protected abstract Statistics createStatistics();
+
     void setupTestForAllSampleMethods(int occurrencePosters,
                                       int samplePosters,
                                       int durationPosters,
                                       int loopsPerPoster) {
         int totalThreads = occurrencePosters + samplePosters + durationPosters;
-        subject = StatisticsFactory.createThreadsafeStatistics();
+        subject = createStatistics();
         starter = new CountDownLatch(1);
         finisher = new CountDownLatch(totalThreads);
         concurrentTasks = new ArrayList<EventPostingTask>();
@@ -60,7 +58,7 @@ public class ConcurrencyTest {
         addConcurrentTasks(DURATION_POSTER_FACTORY, DURATION_EVENT, durationPosters, loopsPerPoster);
         assertThat(concurrentTasks).hasSize(totalThreads);
         prepareThreads();
-        System.out.println(String.format("creatd %d threads ready to fire", concurrentTasks.size()));
+        System.out.println(String.format("created %d threads ready to fire", concurrentTasks.size()));
     }
 
     void addConcurrentTasks(PosterFactory factory, String eventName, int instances, int loops) {
@@ -72,23 +70,11 @@ public class ConcurrencyTest {
     void prepareThreads() {
         for (EventPostingTask task : concurrentTasks) {
             new Thread(task).start();
-            System.out.println(String.format("creating posting task for event '%s' of type %s", task.getEventName(), task.getClass().getSimpleName()));
         }
     }
 
     private void start() {
         starter.countDown();
-    }
-
-    void runConcurrencyTest(int occurrenceThreads, int samplesThreads, int durationsThreads, int loopsPerThread) {
-        setupTestForAllSampleMethods(occurrenceThreads, samplesThreads, durationsThreads, loopsPerThread);
-        start();
-        waitTillAllTasksFinish();
-        Map<String, Statistic> statistics = subject.getSortedSnapshot();
-        assertThat(statistics).hasSize(3).containsOnlyKeys(OCCURRENCE_EVENT, SAMPLE_EVENT, DURATION_EVENT);
-        assertThat(statistics.get(OCCURRENCE_EVENT).getSampleCount()).as("recored occurrences").isEqualTo(occurrenceThreads * loopsPerThread);
-        assertThat(statistics.get(SAMPLE_EVENT).getSampleCount()).as("recored samples").isEqualTo(samplesThreads * loopsPerThread);
-        assertThat(statistics.get(DURATION_EVENT).getSampleCount()).as("recored durations").isEqualTo(durationsThreads * loopsPerThread);
     }
 
     private void waitTillAllTasksFinish() {
@@ -99,29 +85,45 @@ public class ConcurrencyTest {
         }
     }
 
-    @Test
-    public void testConcurrencyOneThreadEach() {
-        runConcurrencyTest(1, 1, 1, 10000);
+    private int countEventsPostedByTasks(String occurrenceEvent) {
+        int eventsPostedForKey = 0;
+        for (EventPostingTask task : concurrentTasks) {
+            if (occurrenceEvent.equals(task.getEventName())){
+                eventsPostedForKey += task.getEventsPosted();
+            }
+        }
+        return eventsPostedForKey;
     }
 
-    @Test
-    public void testConcurrencyTwoThreadEach() {
-        runConcurrencyTest(2, 2, 2, 10000);
+    protected void runConcurrencyTest(int occurrenceThreads, int samplesThreads, int durationsThreads, int loopsPerThread) {
+        setupTestForAllSampleMethods(occurrenceThreads, samplesThreads, durationsThreads, loopsPerThread);
+
+        start();
+        waitTillAllTasksFinish();
+
+        Map<String, Statistic> statistics = subject.getSortedSnapshot();
+        assertThat(statistics).hasSize(3).containsOnlyKeys(OCCURRENCE_EVENT, SAMPLE_EVENT, DURATION_EVENT);
+        assertSampleCountIsAsExpected(occurrenceThreads, samplesThreads, durationsThreads, loopsPerThread, statistics);
+        assertSampleCountIsSameAsPostedEventsByTasks(statistics);
     }
 
-    @Test
-    public void testConcurrencyTenThreadsEach() {
-        runConcurrencyTest(10, 10, 10, 10000);
+    private void assertSampleCountIsAsExpected(int occurrenceThreads,
+                                               int samplesThreads,
+                                               int durationsThreads,
+                                               int loopsPerThread, Map<String, Statistic> statistics) {
+        assertThat(statistics.get(OCCURRENCE_EVENT).getSampleCount()).as("expected occurrences").isEqualTo(occurrenceThreads * loopsPerThread);
+        assertThat(statistics.get(SAMPLE_EVENT).getSampleCount()).as("expected samples").isEqualTo(samplesThreads * loopsPerThread);
+        assertThat(statistics.get(DURATION_EVENT).getSampleCount()).as("expected durations").isEqualTo(durationsThreads * loopsPerThread);
     }
 
-    @Test
-    public void testConcurrencyHundredThreadsEach() {
-        runConcurrencyTest(100, 100, 100, 10000);
-    }
+    private void assertSampleCountIsSameAsPostedEventsByTasks(Map<String, Statistic> statistics) {
+        int occurrencesPosted = countEventsPostedByTasks(OCCURRENCE_EVENT);
+        int samplesPosted = countEventsPostedByTasks(SAMPLE_EVENT);
+        int durationsPosted = countEventsPostedByTasks(DURATION_EVENT);
 
-    @Test
-    public void testConcurrencyFiveHundredThreadsEach() {
-        runConcurrencyTest(500, 500, 500, 10000);
+        assertThat(statistics.get(OCCURRENCE_EVENT).getSampleCount()).as("").isEqualTo(occurrencesPosted);
+        assertThat(statistics.get(SAMPLE_EVENT).getSampleCount()).as("recored samples").isEqualTo(samplesPosted);
+        assertThat(statistics.get(DURATION_EVENT).getSampleCount()).as("recored durations").isEqualTo(durationsPosted);
     }
 }
 

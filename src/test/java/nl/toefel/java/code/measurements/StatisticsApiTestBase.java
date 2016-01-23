@@ -1,22 +1,25 @@
 /*
- *    Copyright 2016 Christophe Hesters
  *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ *     Copyright 2016 Christophe Hesters
  *
- *        http://www.apache.org/licenses/LICENSE-2.0
+ *     Licensed under the Apache License, Version 2.0 (the "License");
+ *     you may not use this file except in compliance with the License.
+ *     You may obtain a copy of the License at
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
+ *
  */
 
-package nl.toefel.java.code.measurements.referenceimpl;
+package nl.toefel.java.code.measurements;
 
 import nl.toefel.java.code.measurements.api.Statistic;
+import nl.toefel.java.code.measurements.api.Statistics;
 import nl.toefel.java.code.measurements.api.Stopwatch;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,13 +33,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
 
-public class StatisticsTest {
+public abstract class StatisticsApiTestBase {
 
-	private StatisticsFacade stats;
+	private Statistics stats;
+
+	protected abstract Statistics createStatistics();
 
 	@Before
 	public void setUp() {
-		stats = new StatisticsFacade();
+		stats = createStatistics();
 	}
 
 	@Test
@@ -157,7 +162,6 @@ public class StatisticsTest {
 		stats.addSample("test.sample", 15);
 		Statistic stat = stats.findStatistic("test.sample");
 
-		System.out.println(stat);
 		assertThat(stat.getName()).as("name").isEqualTo("test.sample");
 		assertThat(stat.getSampleCount()).as("sampleCount").isEqualTo(3);
 		assertThat(stat.getMinimum()).as("minimum").isEqualTo(5);
