@@ -50,7 +50,7 @@ public class ConcurrencyTest {
                                       int durationPosters,
                                       int loopsPerPoster) {
         int totalThreads = occurrencePosters + samplePosters + durationPosters;
-        subject = new StatisticsFacade();
+        subject = new SynchronizedStatistics(new StatisticsFacade());
         starter = new CountDownLatch(1);
         finisher = new CountDownLatch(totalThreads);
         concurrentTasks = new ArrayList<EventPostingTask>();
@@ -111,6 +111,16 @@ public class ConcurrencyTest {
     @Test
     public void testConcurrencyTenThreadsEach() {
         runConcurrencyTest(10, 10, 10, 1000);
+    }
+
+    @Test
+    public void testConcurrencyHundredThreadsEach() {
+        runConcurrencyTest(100, 100, 100, 1000);
+    }
+
+    @Test
+    public void testConcurrencyFiveHundredThreadsEach() {
+        runConcurrencyTest(500, 500, 500, 1000);
     }
 }
 
