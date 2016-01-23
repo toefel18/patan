@@ -35,11 +35,6 @@ public class SingleThreadedStatisticsConcurrencyTest extends ConcurrencyTestBase
     }
 
     @Test (expected = AssertionError.class)
-    public void testConcurrencyTwoThreadEach() {
-        runConcurrencyTest(2, 2, 2, 10000);
-    }
-
-    @Test (expected = AssertionError.class)
     public void testConcurrencyTenThreadsEach() {
         runConcurrencyTest(10, 10, 10, 10000);
     }
