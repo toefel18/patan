@@ -22,6 +22,7 @@ import nl.toefel.java.code.measurements.api.Statistic;
 import nl.toefel.java.code.measurements.api.Statistics;
 import nl.toefel.java.code.measurements.api.Stopwatch;
 
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -82,12 +83,32 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public Statistic findOccurrence(String eventName) {
+    public long findOccurrence(String eventName) {
         try {
             rwLock.readLock().lock();
             return statistics.findOccurrence(eventName);
         } finally {
             rwLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Map<String, Long> getAllOccurrencesSnapshot() {
+        try {
+            rwLock.readLock().lock();
+            return statistics.getAllOccurrencesSnapshot();
+        } finally {
+            rwLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Map<String, Long> getAllOccurrencesSnapshotAndReset() {
+        try {
+            rwLock.writeLock().lock();
+            return statistics.getAllOccurrencesSnapshotAndReset();
+        } finally {
+            rwLock.writeLock().unlock();
         }
     }
 

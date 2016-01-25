@@ -21,7 +21,7 @@ import java.util.SortedMap;
 /**
  * Methods for querying the statistics store
  */
-public interface Query {
+public interface StatisticQuery {
 
 	/**
 	 * Finds the current statistical value for the event with the given eventName. If the eventName has not been found,
@@ -32,27 +32,6 @@ public interface Query {
 	 * @return a copy of the internal statistic, never null
 	 */
 	Statistic findStatistic(String eventName);
-
-	/**
-	 * Finds the current amount of times the event occurred. If the eventName has not been found,
-	 * a empty statistic will be returned, use the {@link Statistic#isEmpty()} method to check if a statistic with values
-	 * was returned.
-	 *
-	 * @param eventName the name of the event to lookup
-	 * @return a copy of the internal statistic, never null
-	 */
-	Statistic findOccurrence(String eventName);
-
-	/**
-	 * @return a snapshot of all
-	 */
-	SortedMap<String, Statistic> getSortedSnapshot();
-
-	/**
-	 * Retrieves the current collected statistics and returns them. All the current statistics are cleared.
-	 * @return the snapshot and clears the cur
-	 */
-	SortedMap<String, Statistic> getSortedSnapshotAndReset();
 
 	/**
 	 * Clears all currently collected statistics

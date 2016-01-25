@@ -16,9 +16,23 @@
 
 package nl.toefel.java.code.measurements.api;
 
+import java.util.SortedMap;
+
 /**
  * This is the interface that implementations should implement.
  */
-public interface Statistics extends DurationStore, OccurrenceStore, SampleStore, Query {
+public interface Statistics extends DurationStore, OccurrenceStore, SampleStore, StatisticQuery {
+
+	/**
+	 * @return a snapshot of all statistics, including occurrences, durations and samples sorted by key
+	 */
+	SortedMap<String, Statistic> getSortedSnapshot();
+
+	/**
+	 * Retrieves the current collected statistics and returns them. All the current statistics are cleared.
+	 *
+	 * @return a snapshot of all statistics, including occurrences, durations and samples sorted by key
+	 */
+	SortedMap<String, Statistic> getSortedSnapshotAndReset();
 
 }

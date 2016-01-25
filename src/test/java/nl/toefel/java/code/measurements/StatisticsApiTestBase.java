@@ -53,10 +53,8 @@ public abstract class StatisticsApiTestBase {
 
 	@Test
 	public void testFindOccurrenceNotNull() {
-		Statistic empty = stats.findOccurrence("test.empty");
-		assertThat(empty).isNotNull();
-		assertThat(empty.isEmpty()).isTrue();
-		assertThat(empty.getSampleCount()).isZero();
+		long emptyCounter = stats.findOccurrence("test.empty");
+		assertThat(emptyCounter).isZero();
 	}
 
 	@Test
@@ -99,8 +97,7 @@ public abstract class StatisticsApiTestBase {
 	@Test
 	public void testAddOccurrence_sinleInvocation() {
 		stats.addOccurrence("test.occurrence");
-		Statistic counterStat = stats.findOccurrence("test.occurrence");
-		assertRecordHasExactParameters(counterStat, "test.occurrence", 1, 0, 0, 0, 0, 0);
+		assertThat(stats.findOccurrence("test.occurrence")).isEqualTo(1);
 	}
 
 	@Test
@@ -116,36 +113,29 @@ public abstract class StatisticsApiTestBase {
 		stats.addOccurrence("test.occurrence");
 		stats.addOccurrence("test.occurrence");
 
-		Statistic counterStat = stats.findOccurrence("test.occurrence");
-		assertRecordHasExactParameters(counterStat, "test.occurrence", 3, 0, 0, 0, 0, 0);
+		assertThat(stats.findOccurrence("test.occurrence")).isEqualTo(3);
 	}
 
 	@Test
 	public void testAddOccurrence_newInstancesEachInvocation() {
 		stats.addOccurrence("test.occurrence");
-		Statistic counterStatisticFirst = stats.findOccurrence("test.occurrence");
-		assertRecordHasExactParameters(counterStatisticFirst, "test.occurrence", 1, 0, 0, 0, 0, 0);
+		assertThat(stats.findOccurrence("test.occurrence")).isEqualTo(1);
 
 		stats.addOccurrence("test.occurrence");
-		Statistic counterStatSecond = stats.findOccurrence("test.occurrence");
-		assertThat(counterStatisticFirst).isNotSameAs(counterStatSecond);
-		assertRecordHasExactParameters(counterStatisticFirst, "test.occurrence", 1, 0, 0, 0, 0, 0);
-		assertRecordHasExactParameters(counterStatSecond, "test.occurrence", 2, 0, 0, 0, 0, 0);
+		assertThat(stats.findOccurrence("test.occurrence")).isEqualTo(2);
 	}
 
 	@Test
 	public void testAddOccurrences_singleInvocation() {
 		stats.addOccurrences("test.occurrences", 3);
-		Statistic counterStatistic = stats.findOccurrence("test.occurrences");
-		assertRecordHasExactParameters(counterStatistic, "test.occurrences", 3, 0, 0, 0, 0, 0);
+		assertThat(stats.findOccurrence("test.occurrences")).isEqualTo(3);
 	}
 
 	@Test
 	public void testAddOccurrences_multipleInvocations() {
 		stats.addOccurrences("test.occurrences", 1);
 		stats.addOccurrences("test.occurrences", 4);
-		Statistic counterStatistic = stats.findOccurrence("test.occurrences");
-		assertRecordHasExactParameters(counterStatistic, "test.occurrences", 5, 0, 0, 0, 0, 0);
+		assertThat(stats.findOccurrence("test.occurrences")).isEqualTo(5);
 	}
 
 	@Test
@@ -179,8 +169,7 @@ public abstract class StatisticsApiTestBase {
 		Statistic stat = stats.findStatistic("test.samename");
 		assertRecordHasExactParameters(stat, "test.samename", 1, 5, 5, 5, 0, Double.NaN);
 
-		Statistic counter = stats.findOccurrence("test.samename");
-		assertRecordHasExactParameters(counter, "test.samename", 1, 0, 0, 0, 0, 0);
+		assertThat(stats.findOccurrence("test.samename")).isEqualTo(1);
 	}
 
 	@Test

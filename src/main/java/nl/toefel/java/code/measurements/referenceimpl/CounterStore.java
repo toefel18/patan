@@ -19,6 +19,7 @@
 package nl.toefel.java.code.measurements.referenceimpl;
 
 import nl.toefel.java.code.measurements.api.OccurrenceStore;
+import nl.toefel.java.code.measurements.api.Statistic;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +29,7 @@ import java.util.Map;
  */
 public class CounterStore implements OccurrenceStore {
 
-	private static final Long ZERO = 0L;
+	private static final long ZERO = 0L;
 
 	private Map<String, Long> counters = new HashMap<String, Long>();
 
@@ -49,11 +50,8 @@ public class CounterStore implements OccurrenceStore {
 		}
 	}
 
-	public void reset() {
-		counters.clear();
-	}
-
-	public Long findCounter(String eventName) {
+	@Override
+	public long findOccurrence(final String eventName) {
 		Long counter = counters.get(eventName);
 		if (counter == null) {
 			return ZERO;
@@ -62,7 +60,17 @@ public class CounterStore implements OccurrenceStore {
 		}
 	}
 
-	public Map<String, Long> getSnapshot() {
+	@Override
+	public Map<String, Long> getAllOccurrencesSnapshot() {
 		return new HashMap<String, Long>(counters); //String and Long are immutable
+	}
+
+	@Override
+	public Map<String, Long> getAllOccurrencesSnapshotAndReset() {
+		return null;
+	}
+
+	public void reset() {
+		counters.clear();
 	}
 }

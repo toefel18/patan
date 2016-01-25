@@ -28,4 +28,19 @@ public interface SampleStore {
 	 * @param value current value to record into the distribution
 	 */
 	void addSample(String eventName, long value);
+
+	/**
+	 * Finds the current statistical value for the event with the given eventName. If the eventName has not been found,
+	 * a empty statistic will be returned, use the {@link Statistic#isEmpty()} method to check if a statistic with values
+	 * was returned.
+	 *
+	 * @param eventName the name of the event to lookup
+	 * @return a copy of the internal statistic, never null
+	 */
+	Statistic findStatistic(String eventName);
+
+	/**
+	 * Clears all currently collected statistics
+	 */
+	void reset();
 }

@@ -17,6 +17,8 @@
 package nl.toefel.java.code.measurements.api;
 
 
+import java.util.Map;
+
 /**
  * Counts occurrences of 'events' that happened. Example events:
  * <ul>
@@ -68,4 +70,32 @@ public interface OccurrenceStore {
 	 * @param timesOccurred times the event occurred.
 	 */
 	void addOccurrences(final String eventName, int timesOccurred);
+
+	/**
+	 * Finds the current amount of times the event occurred. If the eventName has not been found, zero will be returned.
+	 * was returned.
+	 *
+	 * @param eventName the name of the event to lookup
+	 * @return , never null
+	 */
+	long findOccurrence(String eventName);
+
+	/**
+	 * Returns a snapshot of all the counters.
+	 *
+	 * @return a copy of the internal state that is detached from the implementation
+	 */
+	Map<String, Long> getAllOccurrencesSnapshot();
+
+	/**
+	 * Returns a snapshot of all the counters currently active and clears the internal state
+	 *
+	 * @return a copy of the internal state that is detached from the implementation
+	 */
+	Map<String, Long> getAllOccurrencesSnapshotAndReset();
+
+	/**
+	 * Clears all currently collected statistics
+	 */
+	void reset();
 }

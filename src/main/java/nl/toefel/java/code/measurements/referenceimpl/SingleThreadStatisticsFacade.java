@@ -65,14 +65,24 @@ public class SingleThreadStatisticsFacade implements Statistics {
 	}
 
 	@Override
-	public Statistic findOccurrence(final String eventName) {
-		return createCounterStatistic(eventName, counterStore.findCounter(eventName));
+	public long findOccurrence(final String eventName) {
+		return counterStore.findOccurrence(eventName);
+	}
+
+	@Override
+	public Map<String, Long> getAllOccurrencesSnapshot() {
+		return counterStore.getAllOccurrencesSnapshot();
+	}
+
+	@Override
+	public Map<String, Long> getAllOccurrencesSnapshotAndReset() {
+		return counterStore.getAllOccurrencesSnapshotAndReset();
 	}
 
 	@Override
 	public SortedMap<String, Statistic> getSortedSnapshot() {
 		SortedMap<String, Statistic> statistics = statsStore.getSortedSnapshot();
-		Map<String, Long> counters = counterStore.getSnapshot();
+		Map<String, Long> counters = counterStore.getAllOccurrencesSnapshot();
 		addCountersAsStatisticRecords(statistics, counters);
 		return statistics;
 	}
