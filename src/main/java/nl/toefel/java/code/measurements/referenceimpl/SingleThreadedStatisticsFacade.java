@@ -28,9 +28,11 @@ import static nl.toefel.java.code.measurements.referenceimpl.OccurrenceRecord.cr
 /**
  * Statistics implementation suitable for single-threaded applications.
  */
-public class SingleThreadStatisticsFacade implements Statistics {
+public class SingleThreadedStatisticsFacade implements Statistics {
 
 	private final StatisticRecordStore statsStore = new StatisticRecordStore();
+
+	private final StatisticRecordStore durationStore = new StatisticRecordStore();
 
 	private final CounterStore counterStore = new CounterStore();
 
@@ -41,7 +43,22 @@ public class SingleThreadStatisticsFacade implements Statistics {
 
 	@Override
 	public void recordElapsedTime(final String eventName, final Stopwatch stopwatch) {
-		statsStore.addSample(eventName, stopwatch.elapsedMillis());
+		durationStore.addSample(eventName, stopwatch.elapsedMillis());
+	}
+
+	@Override
+	public Statistic findDuration(final String name) {
+		return durationStore.findStatistic(name);
+	}
+
+	@Override
+	public Map<String, Statistic> getAllDurationsSnapshot() {
+		return null; // TODO IMPLEMENT
+	}
+
+	@Override
+	public Map<String, Statistic> getAllDurationsSnapshotAndReset() {
+		return null; // TODO IMPLEMENT
 	}
 
 	@Override
@@ -62,6 +79,16 @@ public class SingleThreadStatisticsFacade implements Statistics {
 	@Override
 	public Statistic findStatistic(final String eventName) {
 		return statsStore.findStatistic(eventName);
+	}
+
+	@Override
+	public Map<String, Statistic> getAllSamplesSnapshot() {
+		return null;
+	}
+
+	@Override
+	public Map<String, Statistic> getAllSamplesSnapshotAndReset() {
+		return null;
 	}
 
 	@Override

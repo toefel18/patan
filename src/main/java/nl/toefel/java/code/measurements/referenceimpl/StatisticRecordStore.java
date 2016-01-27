@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static nl.toefel.java.code.measurements.referenceimpl.StatisticRecord.copyOf;
 
-public class StatisticRecordStore  {
+public class StatisticRecordStore {
 
 	private Map<String, StatisticRecord> recordsByName = new ConcurrentHashMap<String, StatisticRecord>();
 

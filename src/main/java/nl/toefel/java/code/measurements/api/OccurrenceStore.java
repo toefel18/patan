@@ -17,6 +17,8 @@
 package nl.toefel.java.code.measurements.api;
 
 
+import com.sun.org.apache.regexp.internal.RE;
+
 import java.util.Map;
 
 /**
@@ -54,7 +56,7 @@ import java.util.Map;
  * </ul>
  *
  */
-public interface OccurrenceStore {
+public interface OccurrenceStore extends Resettable {
 
 	/**
 	 * Adds a single occurrence for the given eventName to the store.
@@ -93,9 +95,4 @@ public interface OccurrenceStore {
 	 * @return a copy of the internal state that is detached from the implementation
 	 */
 	Map<String, Long> getAllOccurrencesSnapshotAndReset();
-
-	/**
-	 * Clears all currently collected statistics
-	 */
-	void reset();
 }

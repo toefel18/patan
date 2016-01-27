@@ -53,6 +53,36 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
+    public Statistic findDuration(final String name) {
+        try {
+            rwLock.readLock().lock();
+            return statistics.findDuration(name);
+        } finally {
+            rwLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Map<String, Statistic> getAllDurationsSnapshot() {
+        try {
+            rwLock.readLock().lock();
+            return statistics.getAllDurationsSnapshot();
+        } finally {
+            rwLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Map<String, Statistic> getAllDurationsSnapshotAndReset() {
+        try {
+            rwLock.writeLock().lock();
+            return statistics.getAllDurationsSnapshotAndReset();
+        } finally {
+            rwLock.writeLock().unlock();
+        }
+    }
+
+    @Override
     public void addOccurrence(String eventName) {
         try {
             rwLock.writeLock().lock();
@@ -80,6 +110,16 @@ public class SynchronizedStatistics implements Statistics {
         } finally {
             rwLock.readLock().unlock();
         }
+    }
+
+    @Override
+    public Map<String, Statistic> getAllSamplesSnapshot() {
+        return null;
+    }
+
+    @Override
+    public Map<String, Statistic> getAllSamplesSnapshotAndReset() {
+        return null;
     }
 
     @Override

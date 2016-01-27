@@ -21,7 +21,7 @@ import java.util.SortedMap;
 /**
  * This is the interface that implementations should implement.
  */
-public interface Statistics extends DurationStore, OccurrenceStore, SampleStore, StatisticQuery {
+public interface Statistics extends DurationStore, OccurrenceStore, SampleStore {
 
 	/**
 	 * @return a snapshot of all statistics, including occurrences, durations and samples sorted by key

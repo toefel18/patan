@@ -19,7 +19,7 @@
 package nl.toefel.java.code.measurements;
 
 import nl.toefel.java.code.measurements.api.Statistics;
-import nl.toefel.java.code.measurements.referenceimpl.SingleThreadStatisticsFacade;
+import nl.toefel.java.code.measurements.referenceimpl.SingleThreadedStatisticsFacade;
 import nl.toefel.java.code.measurements.referenceimpl.SynchronizedStatistics;
 
 /**
@@ -33,7 +33,7 @@ public final class StatisticsFactory {
      * @return a new thread-safe Statistics instance
      */
     public static Statistics createThreadsafeStatistics () {
-        return new SynchronizedStatistics(new SingleThreadStatisticsFacade());
+        return new SynchronizedStatistics(new SingleThreadedStatisticsFacade());
     }
 
     /**
@@ -43,6 +43,6 @@ public final class StatisticsFactory {
      * @return a new non-thread-safe instance
      */
     public static Statistics createSingleThreadedStatistics() {
-        return new SingleThreadStatisticsFacade();
+        return new SingleThreadedStatisticsFacade();
     }
 }

@@ -16,10 +16,13 @@
 
 package nl.toefel.java.code.measurements.api;
 
+import java.util.Map;
+import java.util.SortedMap;
+
 /**
  * Methods for adding samples of value to the store. The values can then be summarized in a statistics record.
  */
-public interface SampleStore {
+public interface SampleStore extends Resettable {
 
 	/**
 	 * Adds a sample for the variable with the name 'eventName'.
@@ -40,7 +43,14 @@ public interface SampleStore {
 	Statistic findStatistic(String eventName);
 
 	/**
-	 * Clears all currently collected statistics
+	 * @return the snapshot of all stored samples
 	 */
-	void reset();
+	Map<String, Statistic> getAllSamplesSnapshot();
+
+	/**
+	 * Retrieves the current collected statistics and returns them. All the current statistics are cleared.
+	 *
+	 * @return a snapshot of all samples
+	 */
+	Map<String, Statistic> getAllSamplesSnapshotAndReset();
 }
