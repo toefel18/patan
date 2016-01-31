@@ -66,4 +66,14 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <!-- configure settings.xml and use apikey as password! -->
+    <distributionManagement>
+        <repository>
+            <id>bintray-toefel18-maven</id>
+            <name>toefel18-maven</name>
+            <url>https://api.bintray.com/maven/toefel18/maven/patan/;publish=1</url>
+        </repository>
+    </distributionManagement>
+
 </project>
