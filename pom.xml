@@ -5,7 +5,7 @@
 
     <groupId>nl.toefel</groupId>
     <artifactId>patan</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1-ALPHA</version>
     <packaging>jar</packaging>
 
     <name>patan</name>
