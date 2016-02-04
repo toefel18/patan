@@ -16,10 +16,7 @@
 
 package nl.toefel.java.code.measurements.referenceimpl;
 
-import com.sun.org.apache.xml.internal.utils.StringComparable;
 import nl.toefel.java.code.measurements.api.Statistic;
-
-import java.util.Comparator;
 
 /**
  * Structure to hold the stats values in a distribution.
