@@ -19,8 +19,8 @@
 package nl.toefel.java.code.measurements;
 
 import nl.toefel.java.code.measurements.api.Statistics;
-import nl.toefel.java.code.measurements.referenceimpl.SingleThreadedStatisticsFacade;
-import nl.toefel.java.code.measurements.referenceimpl.SynchronizedStatistics;
+import nl.toefel.java.code.measurements.singlethreadedimpl.SingleThreadedStatisticsFacade;
+import nl.toefel.java.code.measurements.singlethreadedimpl.SynchronizedStatistics;
 
 /**
  * Factory for statistics instances. All clients should use this factory to create {@link Statistics} instances.

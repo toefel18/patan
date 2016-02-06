@@ -18,21 +18,21 @@
 
 package nl.toefel.java.code.measurements;
 
+import nl.toefel.java.code.measurements.api.Snapshot;
 import nl.toefel.java.code.measurements.api.Statistic;
 import nl.toefel.java.code.measurements.api.Statistics;
 import nl.toefel.java.code.measurements.api.Stopwatch;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Map;
-
-import static nl.toefel.java.code.measurements.referenceimpl.AssertionHelper.assertRecordHasExactParameters;
-import static nl.toefel.java.code.measurements.referenceimpl.AssertionHelper.assertRecordHasParametersWithin;
-import static nl.toefel.java.code.measurements.referenceimpl.TimingHelper.expensiveMethodTakingMillis;
+import static nl.toefel.java.code.measurements.singlethreadedimpl.AssertionHelper.*;
+import static nl.toefel.java.code.measurements.singlethreadedimpl.TimingHelper.expensiveMethodTakingMillis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
-
+/**
+ * Base class for tests that verify correctness of the API.
+ */
 public abstract class StatisticsApiTestBase {
 
 	private Statistics stats;
@@ -71,9 +71,9 @@ public abstract class StatisticsApiTestBase {
 		expensiveMethodTakingMillis(100);
 		stats.recordElapsedTime("test.duration", stopwatch);
 
-		Statistic record = stats.findStatistic("test.duration");
+		Statistic record = stats.findDuration("test.duration");
 
-		assertRecordHasParametersWithin(record, "test.duration", 1, 100, 100, 100, 20);
+		assertRecordHasParametersWithin(record, 1, 100, 100, 100, 20);
 		assertThat(record.getSampleVariance()).as("variance").isCloseTo(0.0d, within(0.0d));
 		assertThat(record.getSampleStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
 	}
@@ -88,8 +88,8 @@ public abstract class StatisticsApiTestBase {
 		expensiveMethodTakingMillis(150);
 		stats.recordElapsedTime("test.duration", anotherStopwatch);
 
-		Statistic record = stats.findStatistic("test.duration");
-		assertRecordHasParametersWithin(record, "test.duration", 2, 80, 150, 115.0d, 20);
+		Statistic record = stats.findDuration("test.duration");
+		assertRecordHasParametersWithin(record, 2, 80, 150, 115.0d, 20);
 		assertThat(record.getSampleVariance()).as("variance").isCloseTo(2450.0d, within(200.0d));
 		assertThat(record.getSampleStdDeviation()).as("standardDeviation").isCloseTo(50, within(5.0d));
 	}
@@ -142,7 +142,7 @@ public abstract class StatisticsApiTestBase {
 	public void testAddSample() {
 		stats.addSample("test.sample", 5);
 		Statistic stat = stats.findStatistic("test.sample");
-		assertRecordHasExactParameters(stat, "test.sample", 1, 5, 5, 5, 0, Double.NaN);
+		assertRecordHasExactParameters(stat, 1, 5, 5, 5, 0, Double.NaN);
 	}
 
 	@Test
@@ -152,7 +152,6 @@ public abstract class StatisticsApiTestBase {
 		stats.addSample("test.sample", 15);
 		Statistic stat = stats.findStatistic("test.sample");
 
-		assertThat(stat.getName()).as("name").isEqualTo("test.sample");
 		assertThat(stat.getSampleCount()).as("sampleCount").isEqualTo(3);
 		assertThat(stat.getMinimum()).as("minimum").isEqualTo(5);
 		assertThat(stat.getMaximum()).as("maximum").isEqualTo(15);
@@ -167,56 +166,52 @@ public abstract class StatisticsApiTestBase {
 		stats.addOccurrence("test.samename");
 
 		Statistic stat = stats.findStatistic("test.samename");
-		assertRecordHasExactParameters(stat, "test.samename", 1, 5, 5, 5, 0, Double.NaN);
+		assertRecordHasExactParameters(stat, 1, 5, 5, 5, 0, Double.NaN);
 
 		assertThat(stats.findOccurrence("test.samename")).isEqualTo(1);
-	}
-
-	@Test
-	public void testGetSortedSnapshot() {
-		stats.addOccurrences("test.occurrences", 1);
-		stats.addSample("test.sample", 5);
-
-		Map<String, Statistic> snapshot = stats.getSortedSnapshot();
-
-		assertThat(snapshot).containsKeys("test.occurrences", "test.sample");
-		assertRecordHasExactParameters(snapshot.get("test.occurrences"), "test.occurrences", 1, 0, 0, 0, 0, 0);
-		assertRecordHasExactParameters(snapshot.get("test.sample"), "test.sample", 1, 5, 5, 5, 0, Double.NaN);
 	}
 
 	@Test
 	public void testGetSortedSnapshotWithSameOccurrenceAsStat() {
 		stats.addOccurrence("test.test");
 		stats.addSample("test.test", 5);
+		stats.recordElapsedTime("test.test", stats.startStopwatch());
 
-		Map<String, Statistic> snapshot = stats.getSortedSnapshot();
+		Snapshot snapshot = stats.getSnapshot();
 
-		assertThat(snapshot).containsKeys("test.test", "#test.test");
-		assertRecordHasExactParameters(snapshot.get("#test.test"), "#test.test", 1, 0, 0, 0, 0, 0);
-		assertRecordHasExactParameters(snapshot.get("test.test"), "test.test", 1, 5, 5, 5, 0, Double.NaN);
+		assertThat(snapshot.getCounters()).containsKeys("test.test");
+		assertThat(snapshot.getSamples()).containsKeys("test.test");
+		assertThat(snapshot.getDurations()).containsKeys("test.test");
+		assertThat(snapshot.getCounters().get("test.test")).isEqualTo(1L);
+		assertRecordHasExactParameters(snapshot.getSamples().get("test.test"), 1, 5, 5, 5, 0, Double.NaN);
+		assertRecordHasParametersWithin(snapshot.getDurations().get("test.test"), 1, 0, 0, 0, 10);
 	}
 
 	@Test
 	public void testGetSortedSnapshotEmpty() {
-		assertThat(stats.getSortedSnapshot()).isNotNull().isEmpty();
+		Snapshot snapshot = assertEmpty(stats.getSnapshot());
+		assertThat(snapshot.getTimestampTaken()).isCloseTo(System.currentTimeMillis(), within(100L));
 	}
+
 
 	@Test
 	public void testGetSortedSnapshotAndReset() {
-		stats.addOccurrences("test.occurrences", 1);
-		stats.addSample("test.sample", 5);
-		assertThat(stats.getSortedSnapshotAndReset()).hasSize(2);
-		assertThat(stats.getSortedSnapshot()).isEmpty();
+		addCounterDurationAndSample("test.test");
+		Snapshot snapshot = assertSize(stats.getSnapshotAndReset(), 1, 1, 1);
+		assertEmpty(stats.getSnapshot());
 	}
 
 	@Test
 	public void testReset() {
-		stats.addOccurrences("test.occurrences", 1);
-		stats.addSample("test.sample", 5);
-		assertThat(stats.getSortedSnapshot()).hasSize(2);
-
+		addCounterDurationAndSample("test.test");
+		Snapshot snapshot = assertSize(stats.getSnapshotAndReset(), 1, 1, 1);
 		stats.reset();
+		assertEmpty(stats.getSnapshot());
+	}
 
-		assertThat(stats.getSortedSnapshot()).isEmpty();
+	private void addCounterDurationAndSample(String name) {
+		stats.addOccurrences(name, 1);
+		stats.addSample(name, 5);
+		stats.recordElapsedTime(name, stats.startStopwatch());
 	}
 }

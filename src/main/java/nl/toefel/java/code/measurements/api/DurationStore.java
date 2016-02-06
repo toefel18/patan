@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Methods for measuring elapsed time during program execution.
  */
-public interface DurationStore extends Resettable{
+public interface DurationStore extends Resettable {
 
 	/**
 	 * Starts a new stop watch. The elapsed time can be recorded later on by calling {@link #recordElapsedTime(String, Stopwatch)}.
@@ -34,13 +34,13 @@ public interface DurationStore extends Resettable{
 	/**
 	 * Records the elapsed time in nano-seconds.
 	 *
-	 * @param eventName eventName to store the elapsed time under
+	 * @param name name to store the elapsed time under
 	 * @param stopwatch the {@link Stopwatch} that measures the elapsed time
 	 */
-	void recordElapsedTime(String eventName, Stopwatch stopwatch);
+	void recordElapsedTime(String name, Stopwatch stopwatch);
 
 	/**
-	 * Finds the current statistical value for the recored duration with the given name. If the eventName has not been found,
+	 * Finds the current statistical value for the recored duration with the given name. If the name has not been found,
 	 * a empty statistic will be returned, use the {@link Statistic#isEmpty()} method to check if a statistic with values
 	 * was returned.
 	 *
@@ -48,7 +48,6 @@ public interface DurationStore extends Resettable{
 	 * @return a copy of the internal statistic, never null
 	 */
 	Statistic findDuration(String name);
-
 
 	/**
 	 * Returns a snapshot of all the recorded durations

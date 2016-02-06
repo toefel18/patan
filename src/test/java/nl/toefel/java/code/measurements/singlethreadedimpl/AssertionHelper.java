@@ -16,8 +16,9 @@
  *
  */
 
-package nl.toefel.java.code.measurements.referenceimpl;
+package nl.toefel.java.code.measurements.singlethreadedimpl;
 
+import nl.toefel.java.code.measurements.api.Snapshot;
 import nl.toefel.java.code.measurements.api.Statistic;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,14 +27,12 @@ import static org.assertj.core.api.Assertions.within;
 public class AssertionHelper {
 
 	public static void assertRecordHasExactParameters(final Statistic record,
-												final String name,
 												final long samples,
 												final long min,
 												final long max,
 												final double avg,
 												final double variance,
 												final double stddev) {
-		assertThat(record.getName()).as("name").isEqualTo(name);
 		assertThat(record.getSampleCount()).as("sampleCount").isEqualTo(samples);
 		assertThat(record.getMinimum()).as("minimum").isEqualTo(min);
 		assertThat(record.getMaximum()).as("maximum").isEqualTo(max);
@@ -43,16 +42,28 @@ public class AssertionHelper {
 	}
 
 	public static void assertRecordHasParametersWithin(final Statistic record,
-														 final String name,
 														 final long samples,
 														 final long min,
 														 final long max,
 														 final double avg,
 														 final long offsetRange) {
-		assertThat(record.getName()).as("name").isEqualTo(name);
 		assertThat(record.getSampleCount()).as("sampleCount").isEqualTo(samples);
 		assertThat(record.getMinimum()).as("minimum").isCloseTo(min, within(offsetRange));
 		assertThat(record.getMaximum()).as("maximum").isCloseTo(max, within(offsetRange));
 		assertThat(record.getSampleAverage()).as("average").isCloseTo(avg, within((double)offsetRange));
+	}
+
+	public static Snapshot assertEmpty(Snapshot snapshot) {
+		assertThat(snapshot.getCounters()).isNotNull().isEmpty();
+		assertThat(snapshot.getDurations()).isNotNull().isEmpty();
+		assertThat(snapshot.getSamples()).isNotNull().isEmpty();
+		return snapshot;
+	}
+
+	public static Snapshot assertSize(Snapshot snapshot, int counterSize, int durationSize, int sampleSize) {
+		assertThat(snapshot.getCounters()).isNotNull().as("counterSize").hasSize(counterSize);
+		assertThat(snapshot.getDurations()).isNotNull().as("durationSize").hasSize(durationSize);
+		assertThat(snapshot.getSamples()).isNotNull().as("sampleSize").hasSize(sampleSize);
+		return snapshot;
 	}
 }

@@ -14,23 +14,21 @@
  *    limitations under the License.
  */
 
-package nl.toefel.java.code.measurements.referenceimpl;
+package nl.toefel.java.code.measurements.singlethreadedimpl;
 
+import nl.toefel.java.code.measurements.api.Snapshot;
 import nl.toefel.java.code.measurements.api.Statistic;
 import nl.toefel.java.code.measurements.api.Statistics;
 import nl.toefel.java.code.measurements.api.Stopwatch;
 
 import java.util.Map;
-import java.util.SortedMap;
-
-import static nl.toefel.java.code.measurements.referenceimpl.OccurrenceRecord.createCounterStatistic;
 
 /**
  * Statistics implementation suitable for single-threaded applications.
  */
 public class SingleThreadedStatisticsFacade implements Statistics {
 
-	private final StatisticRecordStore statsStore = new StatisticRecordStore();
+	private final StatisticRecordStore sampleStore = new StatisticRecordStore();
 
 	private final StatisticRecordStore durationStore = new StatisticRecordStore();
 
@@ -38,7 +36,7 @@ public class SingleThreadedStatisticsFacade implements Statistics {
 
 	@Override
 	public Stopwatch startStopwatch() {
-		return RunningStopwatch.startNewStopwatch();
+		return ForeverRunningStopwatch.startNewStopwatch();
 	}
 
 	@Override
@@ -53,12 +51,12 @@ public class SingleThreadedStatisticsFacade implements Statistics {
 
 	@Override
 	public Map<String, Statistic> getAllDurationsSnapshot() {
-		return null; // TODO IMPLEMENT
+		return durationStore.getAllSamplesSnapshot();
 	}
 
 	@Override
 	public Map<String, Statistic> getAllDurationsSnapshotAndReset() {
-		return null; // TODO IMPLEMENT
+		return durationStore.getAllSamplesSnapshotAndReset();
 	}
 
 	@Override
@@ -73,22 +71,22 @@ public class SingleThreadedStatisticsFacade implements Statistics {
 
 	@Override
 	public void addSample(final String eventName, final long value) {
-		statsStore.addSample(eventName, value);
+		sampleStore.addSample(eventName, value);
 	}
 
 	@Override
 	public Statistic findStatistic(final String eventName) {
-		return statsStore.findStatistic(eventName);
+		return sampleStore.findStatistic(eventName);
 	}
 
 	@Override
 	public Map<String, Statistic> getAllSamplesSnapshot() {
-		return null;
+		return sampleStore.getAllSamplesSnapshot();
 	}
 
 	@Override
 	public Map<String, Statistic> getAllSamplesSnapshotAndReset() {
-		return null;
+		return sampleStore.getAllSamplesSnapshotAndReset();
 	}
 
 	@Override
@@ -107,46 +105,20 @@ public class SingleThreadedStatisticsFacade implements Statistics {
 	}
 
 	@Override
-	public SortedMap<String, Statistic> getSortedSnapshot() {
-		SortedMap<String, Statistic> statistics = statsStore.getSortedSnapshot();
-		Map<String, Long> counters = counterStore.getAllOccurrencesSnapshot();
-		addCountersAsStatisticRecords(statistics, counters);
-		return statistics;
-	}
-
-	@Override
-	public SortedMap<String, Statistic> getSortedSnapshotAndReset() {
-		try {
-			return getSortedSnapshot();
-		} finally {
-			reset();
-		}
-	}
-
-	@Override
 	public void reset() {
 		counterStore.reset();
-		statsStore.reset();
+		durationStore.reset();
+		sampleStore.reset();
 	}
 
-	private void addCountersAsStatisticRecords(final Map<String, Statistic> statistics, final Map<String, Long> counters) {
-		for (Map.Entry<String, Long> counter: counters.entrySet()) {
-			if (statistics.containsKey(counter.getKey())){
-				String newName = createNonExistingName(statistics, counter.getKey());
-				Statistic counterRecord = createCounterStatistic(newName, counter.getValue());
-				statistics.put(newName, counterRecord);
-			} else {
-				statistics.put(counter.getKey(), createCounterStatistic(counter.getKey(), counter.getValue()));
-			}
-		}
+	@Override
+	public Snapshot getSnapshot() {
+		return new Snapshot(getAllSamplesSnapshot(), getAllOccurrencesSnapshot(), getAllDurationsSnapshot());
 	}
 
-	/** Creates a new name appending a # sign to the original name*/
-	private String createNonExistingName(final Map<String, Statistic> statistics, final String name) {
-		if (statistics.containsKey(name)) {
-			return createNonExistingName(statistics, "#" + name);
-		} else {
-			return name;
-		}
+	@Override
+	public Snapshot getSnapshotAndReset() {
+		return new Snapshot(getAllSamplesSnapshotAndReset(), getAllOccurrencesSnapshotAndReset(), getAllDurationsSnapshotAndReset());
 	}
+
 }

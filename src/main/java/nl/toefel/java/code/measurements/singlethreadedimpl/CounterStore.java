@@ -16,13 +16,14 @@
  *
  */
 
-package nl.toefel.java.code.measurements.referenceimpl;
+package nl.toefel.java.code.measurements.singlethreadedimpl;
 
 import nl.toefel.java.code.measurements.api.OccurrenceStore;
-import nl.toefel.java.code.measurements.api.Statistic;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Holds counters in a more efficient manner than using locking.
@@ -34,25 +35,18 @@ public class CounterStore implements OccurrenceStore {
 	private Map<String, Long> counters = new HashMap<String, Long>();
 
 	@Override
-	public void addOccurrence(final String eventName) {
-		Long counter = counters.get(eventName);
-		if (counter == null) {
-			counters.put(eventName, 1L);
-		} else {
-			counters.put(eventName, counter + 1);
-		}
+	public void addOccurrence(final String name) {
+		counters.put(name, findOccurrence(name) + 1);
 	}
 
 	@Override
-	public void addOccurrences(final String eventName, final int timesOccurred) {
-		for (int i = 0; i < timesOccurred; i++) {
-			addOccurrence(eventName);
-		}
+	public void addOccurrences(final String name, final int timesOccurred) {
+		counters.put(name, findOccurrence(name) + timesOccurred);
 	}
 
 	@Override
-	public long findOccurrence(final String eventName) {
-		Long counter = counters.get(eventName);
+	public long findOccurrence(final String name) {
+		Long counter = counters.get(name);
 		if (counter == null) {
 			return ZERO;
 		} else {
@@ -61,13 +55,15 @@ public class CounterStore implements OccurrenceStore {
 	}
 
 	@Override
-	public Map<String, Long> getAllOccurrencesSnapshot() {
-		return new HashMap<String, Long>(counters); //String and Long are immutable
+	public SortedMap<String, Long> getAllOccurrencesSnapshot() {
+		return new TreeMap<String, Long>(counters); //String and Long are immutable
 	}
 
 	@Override
-	public Map<String, Long> getAllOccurrencesSnapshotAndReset() {
-		return null;
+	public SortedMap<String, Long> getAllOccurrencesSnapshotAndReset() {
+		SortedMap<String, Long> snapshot = getAllOccurrencesSnapshot();
+		reset();
+		return snapshot;
 	}
 
 	public void reset() {

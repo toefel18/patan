@@ -16,14 +16,14 @@
  *
  */
 
-package nl.toefel.java.code.measurements.referenceimpl;
+package nl.toefel.java.code.measurements.singlethreadedimpl;
 
+import nl.toefel.java.code.measurements.api.Snapshot;
 import nl.toefel.java.code.measurements.api.Statistic;
 import nl.toefel.java.code.measurements.api.Statistics;
 import nl.toefel.java.code.measurements.api.Stopwatch;
 
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -153,26 +153,6 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public SortedMap<String, Statistic> getSortedSnapshot() {
-        try {
-            rwLock.readLock().lock();
-            return statistics.getSortedSnapshot();
-        } finally {
-            rwLock.readLock().unlock();
-        }
-    }
-
-    @Override
-    public SortedMap<String, Statistic> getSortedSnapshotAndReset() {
-        try {
-            rwLock.writeLock().lock();
-            return statistics.getSortedSnapshotAndReset();
-        } finally {
-            rwLock.writeLock().unlock();
-        }
-    }
-
-    @Override
     public void reset() {
         try {
             rwLock.writeLock().lock();
@@ -187,6 +167,26 @@ public class SynchronizedStatistics implements Statistics {
         try {
             rwLock.writeLock().lock();
             statistics.addSample(eventName, value);
+        } finally {
+            rwLock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public Snapshot getSnapshot() {
+        try {
+            rwLock.readLock().lock();
+            return statistics.getSnapshot();
+        } finally {
+            rwLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Snapshot getSnapshotAndReset() {
+        try {
+            rwLock.writeLock().lock();
+            return statistics.getSnapshotAndReset();
         } finally {
             rwLock.writeLock().unlock();
         }

@@ -17,49 +17,139 @@
 package nl.toefel.java.code.measurements.api;
 
 /**
- * Represents the calculated statistics for the sample with the name {@link #getName()}. The statistics should be
- * interpreted as statistics of a sample, not the full population.
+ * Immutable structure describing a distribution, making it threadsafe.
+ * <p>
+ * The name of the statistic is not stored in this object itself because it's always mapped by a name through the API
+ * (users store by name, find by name and the {@link Snapshot} contains a map by name), storing the name therefore feels
+ * redundant. Equals and hashcode are not overridden because default behaviour makes more sense in this case.
  */
-public interface Statistic extends Comparable<Statistic> {
+public final class Statistic {
+
+	private static final Statistic EMPTY_STATISTIC = new Statistic();
+
+	private final long sampleCount;
+	private final long minimum;
+	private final long maximum;
+	private final double sampleAverage;
+	private final double sampleVariance;
+	private final double sampleStdDeviation;
 
 	/**
-	 * @return the event name
+	 * @return an empty statistic;
 	 */
-	String getName();
+	public static Statistic createEmpty() {
+		return EMPTY_STATISTIC;
+	}
 
 	/**
-	 * @return true if there were any samples actually recorded, false indicates that the statistical methods will return defaults.
+	 * @param sampleValue
+	 * @return a statistic with one sample
 	 */
-	boolean isEmpty();
+	public static Statistic createWithSingleSample(long sampleValue) {
+		return EMPTY_STATISTIC.addSampleValue(sampleValue);
+	}
 
 	/**
-	 * @return the number of times this event has occurred.
+	 * Creates a new statistical record based on this record and the sample added to the distribution
+	 * <p>
+	 * Average, sampleVariance and sampleStdDeviation calculations are taken from
+	 * <a href="http://en.wikipedia.org/wiki/Standard_deviation">http://en.wikipedia.org/wiki/Standard_deviation</a>
+	 *
+	 * @param sampleValue the value to merge with this record
+	 * @return new, immutable, record
 	 */
-	long getSampleCount();
+	public Statistic addSampleValue(long sampleValue) {
+		Statistic previous = this; // for readability
+		long updatedSampleCount = previous.sampleCount + 1;
+		long updatedMinimum = sampleValue < previous.minimum ? sampleValue : previous.minimum;
+		long updatedMaximum = sampleValue > previous.maximum ? sampleValue : previous.maximum;
+		double updatedSampleAverage = previous.sampleAverage + ((sampleValue - previous.sampleAverage) / updatedSampleCount);
+		double updatedSampleVariance = previous.sampleVariance + ((sampleValue - previous.sampleAverage) * (sampleValue - updatedSampleAverage));
+		double updatedSampleStdDeviation = Math.sqrt(updatedSampleVariance / (updatedSampleCount - 1));
+		return new Statistic(updatedSampleCount, updatedMinimum, updatedMaximum, updatedSampleAverage, updatedSampleVariance, updatedSampleStdDeviation);
+	}
 
 	/**
-	 * @return the minimum value
+	 * Private constructor to enforce immutability, use factory methods
 	 */
-	long getMinimum();
+	private Statistic() {
+		sampleCount = 0;
+		minimum = Long.MAX_VALUE;
+		maximum = Long.MIN_VALUE;
+		sampleAverage = 0.0d;
+		sampleVariance = 0.0d;
+		sampleStdDeviation = 0.0d;
+	}
 
 	/**
-	 * @return the maximum value
+	 * Private constructor to enforce immutability, use factory methods
 	 */
-	long getMaximum();
+	private Statistic(final long sampleCount, final long minimum, final long maximum, final double sampleAverage, final double sampleVariance, final double sampleStdDeviation) {
+		this.sampleCount = sampleCount;
+		this.minimum = minimum;
+		this.maximum = maximum;
+		this.sampleAverage = sampleAverage;
+		this.sampleVariance = sampleVariance;
+		this.sampleStdDeviation = sampleStdDeviation;
+	}
 
 	/**
-	 * @return average of all samples
+	 * @return false if distribution does not contain samples
 	 */
-	double getSampleAverage();
+	public boolean isEmpty() {
+		return sampleCount <= 0;
+	}
 
 	/**
-	 * @return sample variance
+	 * @return the number of recorded samples in the distribution
 	 */
-	double getSampleVariance();
+	public long getSampleCount() {
+		return sampleCount;
+	}
 
 	/**
-	 * @return sample standard deviation.
+	 * @return the lowest value in the distribution
 	 */
-	double getSampleStdDeviation();
+	public long getMinimum() {
+		return minimum;
+	}
 
+	/**
+	 * @return the highest value in the distribution
+	 */
+	public long getMaximum() {
+		return maximum;
+	}
+
+	/**
+	 * @return the average of all samples in the distribution
+	 */
+	public double getSampleAverage() {
+		return sampleAverage;
+	}
+
+	/**
+	 * @return the variance of all samples in the distribution
+	 */
+	public double getSampleVariance() {
+		return sampleVariance;
+	}
+
+	/**
+	 * @return the standard deviation of all samples in the distribution
+	 */
+	public double getSampleStdDeviation() {
+		return sampleStdDeviation;
+	}
+
+	public String toString() {
+		return "Statistic [" +
+				"sampleCount=" + sampleCount +
+				", min=" + minimum +
+				", max=" + maximum +
+				", avg=" + sampleAverage +
+				", variance=" + sampleVariance +
+				", stddev=" + sampleStdDeviation +
+				']';
+	}
 }

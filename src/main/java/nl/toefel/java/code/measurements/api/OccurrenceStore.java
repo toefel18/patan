@@ -17,8 +17,6 @@
 package nl.toefel.java.code.measurements.api;
 
 
-import com.sun.org.apache.regexp.internal.RE;
-
 import java.util.Map;
 
 /**
@@ -59,28 +57,28 @@ import java.util.Map;
 public interface OccurrenceStore extends Resettable {
 
 	/**
-	 * Adds a single occurrence for the given eventName to the store.
+	 * Adds a single occurrence for the given name to the store.
 	 *
-	 * @param eventName event name to store the occurrence under
+	 * @param name event name to store the occurrence under
 	 */
-	void addOccurrence(final String eventName);
+	void addOccurrence(final String name);
 
 	/**
-	 * Adds multiple occurrences for the given eventName to the store.
+	 * Adds multiple occurrences for the given name to the store.
 	 *
-	 * @param eventName event name to store the occurrence under
+	 * @param name event name to store the occurrence under
 	 * @param timesOccurred times the event occurred.
 	 */
-	void addOccurrences(final String eventName, int timesOccurred);
+	void addOccurrences(final String name, int timesOccurred);
 
 	/**
-	 * Finds the current amount of times the event occurred. If the eventName has not been found, zero will be returned.
+	 * Finds the current amount of times the event occurred. If the name has not been found, zero will be returned.
 	 * was returned.
 	 *
-	 * @param eventName the name of the event to lookup
+	 * @param name the name of the event to lookup
 	 * @return , never null
 	 */
-	long findOccurrence(String eventName);
+	long findOccurrence(String name);
 
 	/**
 	 * Returns a snapshot of all the counters.

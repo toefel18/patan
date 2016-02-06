@@ -31,7 +31,7 @@ class GetSnapshotTask extends ConcurrentTask {
     @Override
     protected void doPost(String eventName) {
         try {
-            assertThat(ConcurrencyTestBase.subject.getSortedSnapshot()).isNotNull();
+            assertThat(ConcurrencyTestBase.subject.getSnapshot()).isNotNull();
         } catch (Throwable t) {
             failed = true;
             System.out.println(t.getMessage());
