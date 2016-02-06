@@ -13,19 +13,22 @@ import static org.assertj.core.api.Assertions.within;
 public class SnapshotTest {
 
 	private Map<String, Statistic> samples;
-	private Map<String, Long> counters;
+	private Map<String, Long> occurrences;
 	private Map<String, Statistic> durations;
 
 	@Before
 	public void setupMaps() {
 		samples = new TreeMap<String, Statistic>();
-		counters = new TreeMap<String, Long>();
+		samples.put("sample", Statistic.createEmpty());
+		occurrences = new TreeMap<String, Long>();
+		occurrences.put("counter", 2L);
 		durations = new TreeMap<String, Statistic>();
+		durations.put("duration", Statistic.createEmpty());
 	}
 
 	@Test (expected = IllegalArgumentException.class)
 	public void testConstructorSamplesNull() {
-		new Snapshot(null, counters, durations);
+		new Snapshot(null, occurrences, durations);
 	}
 
 	@Test (expected = IllegalArgumentException.class)
@@ -35,26 +38,26 @@ public class SnapshotTest {
 
 	@Test (expected = IllegalArgumentException.class)
 	public void testConstructorDurationsNull() {
-		new Snapshot(samples, counters, null);
+		new Snapshot(samples, occurrences, null);
 	}
 
 	@Test
 	public void testGetTimestampTaken() {
-		assertThat(new Snapshot(samples, counters, durations).getTimestampTaken()).isCloseTo(System.currentTimeMillis(), within(100L));
+		assertThat(new Snapshot(samples, occurrences, durations).getTimestampTaken()).isCloseTo(System.currentTimeMillis(), within(100L));
 	}
 
 	@Test
 	public void testGetSamples() {
-		assertThat(new Snapshot(samples, counters, durations).getDurations()).isEqualTo(samples);
+		assertThat(new Snapshot(samples, occurrences, durations).getSamples()).isEqualTo(samples);
 	}
 
 	@Test
-	public void testGetCounters() {
-		assertThat(new Snapshot(samples, counters, durations).getDurations()).isEqualTo(counters);
+	public void testGetOccurrences() {
+		assertThat(new Snapshot(samples, occurrences, durations).getOccurrences()).isEqualTo(occurrences);
 	}
 
 	@Test
 	public void testGetDurations() {
-		assertThat(new Snapshot(samples, counters, durations).getDurations()).isEqualTo(durations);
+		assertThat(new Snapshot(samples, occurrences, durations).getDurations()).isEqualTo(durations);
 	}
 }

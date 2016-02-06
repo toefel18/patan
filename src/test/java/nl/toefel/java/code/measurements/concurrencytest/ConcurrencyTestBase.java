@@ -116,7 +116,7 @@ public abstract class ConcurrencyTestBase {
         waitTillAllTasksFinish();
 
         Snapshot snapshot = subject.getSnapshot();
-        assertThat(snapshot.getCounters()).containsOnlyKeys(OCCURRENCE_EVENT);
+        assertThat(snapshot.getOccurrences()).containsOnlyKeys(OCCURRENCE_EVENT);
         assertThat(snapshot.getDurations()).containsOnlyKeys(DURATION_EVENT);
         assertThat(snapshot.getSamples()).containsOnlyKeys(SAMPLE_EVENT);
 
@@ -135,7 +135,7 @@ public abstract class ConcurrencyTestBase {
                                                int samplesThreads,
                                                int durationsThreads,
                                                int loopsPerThread,Snapshot snapshot) {
-        assertThat(snapshot.getCounters().get(OCCURRENCE_EVENT)).as("expected occurrences").isEqualTo(occurrenceThreads * loopsPerThread);
+        assertThat(snapshot.getOccurrences().get(OCCURRENCE_EVENT)).as("expected occurrences").isEqualTo(occurrenceThreads * loopsPerThread);
         assertThat(snapshot.getSamples().get(SAMPLE_EVENT).getSampleCount()).as("expected samples").isEqualTo(samplesThreads * loopsPerThread);
         assertThat(snapshot.getDurations().get(DURATION_EVENT).getSampleCount()).as("expected durations").isEqualTo(durationsThreads * loopsPerThread);
     }
@@ -145,7 +145,7 @@ public abstract class ConcurrencyTestBase {
         int samplesPosted = countEventsPostedByTasks(SAMPLE_EVENT);
         int durationsPosted = countEventsPostedByTasks(DURATION_EVENT);
 
-        assertThat(snapshot.getCounters().get(OCCURRENCE_EVENT)).as("recorded occurrences").isEqualTo(occurrencesPosted);
+        assertThat(snapshot.getOccurrences().get(OCCURRENCE_EVENT)).as("recorded occurrences").isEqualTo(occurrencesPosted);
         assertThat(snapshot.getSamples().get(SAMPLE_EVENT).getSampleCount()).as("recored samples").isEqualTo(samplesPosted);
         assertThat(snapshot.getDurations().get(DURATION_EVENT).getSampleCount()).as("recored durations").isEqualTo(durationsPosted);
     }

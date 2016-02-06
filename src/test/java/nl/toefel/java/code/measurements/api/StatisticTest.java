@@ -18,7 +18,6 @@ public class StatisticTest {
 	@Test
 	public void testgetEmptyName() {
 		assertThat(Statistic.createEmpty()).isNotNull();
-
 	}
 
 	@Test

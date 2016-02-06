@@ -27,6 +27,10 @@ import nl.toefel.java.code.measurements.singlethreadedimpl.SynchronizedStatistic
  */
 public final class StatisticsFactory {
 
+    private StatisticsFactory() {
+        // factory class, do not instantiate
+    }
+
     /**
      * Creates a thread-safe {@link Statistics} implementation that is unrelated to all other instances of statistics.
      *

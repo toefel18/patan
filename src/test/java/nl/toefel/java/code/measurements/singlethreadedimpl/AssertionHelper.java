@@ -54,14 +54,14 @@ public class AssertionHelper {
 	}
 
 	public static Snapshot assertEmpty(Snapshot snapshot) {
-		assertThat(snapshot.getCounters()).isNotNull().isEmpty();
+		assertThat(snapshot.getOccurrences()).isNotNull().isEmpty();
 		assertThat(snapshot.getDurations()).isNotNull().isEmpty();
 		assertThat(snapshot.getSamples()).isNotNull().isEmpty();
 		return snapshot;
 	}
 
 	public static Snapshot assertSize(Snapshot snapshot, int counterSize, int durationSize, int sampleSize) {
-		assertThat(snapshot.getCounters()).isNotNull().as("counterSize").hasSize(counterSize);
+		assertThat(snapshot.getOccurrences()).isNotNull().as("counterSize").hasSize(counterSize);
 		assertThat(snapshot.getDurations()).isNotNull().as("durationSize").hasSize(durationSize);
 		assertThat(snapshot.getSamples()).isNotNull().as("sampleSize").hasSize(sampleSize);
 		return snapshot;

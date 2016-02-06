@@ -114,12 +114,22 @@ public class SynchronizedStatistics implements Statistics {
 
     @Override
     public Map<String, Statistic> getAllSamplesSnapshot() {
-        return null;
+        try {
+            rwLock.readLock().lock();
+            return statistics.getAllSamplesSnapshot();
+        } finally {
+            rwLock.readLock().unlock();
+        }
     }
 
     @Override
     public Map<String, Statistic> getAllSamplesSnapshotAndReset() {
-        return null;
+        try {
+            rwLock.writeLock().lock();
+            return statistics.getAllSamplesSnapshotAndReset();
+        } finally {
+            rwLock.writeLock().unlock();
+        }
     }
 
     @Override

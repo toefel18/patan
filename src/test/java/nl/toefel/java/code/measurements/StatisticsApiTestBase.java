@@ -25,6 +25,8 @@ import nl.toefel.java.code.measurements.api.Stopwatch;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Map;
+
 import static nl.toefel.java.code.measurements.singlethreadedimpl.AssertionHelper.*;
 import static nl.toefel.java.code.measurements.singlethreadedimpl.TimingHelper.expensiveMethodTakingMillis;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -172,39 +174,39 @@ public abstract class StatisticsApiTestBase {
 	}
 
 	@Test
-	public void testGetSortedSnapshotWithSameOccurrenceAsStat() {
+	public void testGetSnapshotWithSameOccurrenceAsStat() {
 		stats.addOccurrence("test.test");
 		stats.addSample("test.test", 5);
 		stats.recordElapsedTime("test.test", stats.startStopwatch());
 
 		Snapshot snapshot = stats.getSnapshot();
 
-		assertThat(snapshot.getCounters()).containsKeys("test.test");
+		assertThat(snapshot.getOccurrences()).containsKeys("test.test");
 		assertThat(snapshot.getSamples()).containsKeys("test.test");
 		assertThat(snapshot.getDurations()).containsKeys("test.test");
-		assertThat(snapshot.getCounters().get("test.test")).isEqualTo(1L);
+		assertThat(snapshot.getOccurrences().get("test.test")).isEqualTo(1L);
 		assertRecordHasExactParameters(snapshot.getSamples().get("test.test"), 1, 5, 5, 5, 0, Double.NaN);
 		assertRecordHasParametersWithin(snapshot.getDurations().get("test.test"), 1, 0, 0, 0, 10);
 	}
 
 	@Test
-	public void testGetSortedSnapshotEmpty() {
+	public void testGetSnapshotEmpty() {
 		Snapshot snapshot = assertEmpty(stats.getSnapshot());
 		assertThat(snapshot.getTimestampTaken()).isCloseTo(System.currentTimeMillis(), within(100L));
 	}
 
 
 	@Test
-	public void testGetSortedSnapshotAndReset() {
+	public void testGetSnapshotAndReset() {
 		addCounterDurationAndSample("test.test");
-		Snapshot snapshot = assertSize(stats.getSnapshotAndReset(), 1, 1, 1);
+		assertSize(stats.getSnapshotAndReset(), 1, 1, 1);
 		assertEmpty(stats.getSnapshot());
 	}
 
 	@Test
 	public void testReset() {
 		addCounterDurationAndSample("test.test");
-		Snapshot snapshot = assertSize(stats.getSnapshotAndReset(), 1, 1, 1);
+		assertSize(stats.getSnapshotAndReset(), 1, 1, 1);
 		stats.reset();
 		assertEmpty(stats.getSnapshot());
 	}
@@ -213,5 +215,54 @@ public abstract class StatisticsApiTestBase {
 		stats.addOccurrences(name, 1);
 		stats.addSample(name, 5);
 		stats.recordElapsedTime(name, stats.startStopwatch());
+	}
+
+	@Test
+	public void testGetAllSamplesSnapshot() {
+		stats.addSample("test.test", 100);
+		Map<String, Statistic> samples = stats.getAllSamplesSnapshot();
+		assertThat(samples).isNotNull().hasSize(1);
+		assertRecordHasExactParameters(samples.get("test.test"), 1, 100, 100, 100, 0, Double.NaN);
+	}
+
+	@Test
+	public void testGetAllSamplesSnapshotAndReset() {
+		stats.addSample("test.test", 100);
+		Map<String, Statistic> samples = stats.getAllSamplesSnapshotAndReset();
+		assertThat(samples).isNotNull().hasSize(1);
+		assertRecordHasExactParameters(samples.get("test.test"), 1, 100, 100, 100, 0, Double.NaN);
+		assertThat(stats.getAllSamplesSnapshot()).isNotNull().isEmpty();
+	}
+
+	@Test
+	public void testGetAllDurationsSnapshot() {
+		stats.recordElapsedTime("test.test", stats.startStopwatch());
+		Map<String, Statistic> durations = stats.getAllDurationsSnapshot();
+		assertThat(durations).isNotNull().hasSize(1);
+		assertRecordHasParametersWithin(durations.get("test.test"), 1, 0, 0, 0, 100);
+	}
+
+	@Test
+	public void testGetAllDurationsSnapshotAndReset() {
+		stats.recordElapsedTime("test.test", stats.startStopwatch());
+		Map<String, Statistic> durations = stats.getAllDurationsSnapshotAndReset();
+		assertThat(durations).isNotNull().hasSize(1);
+		assertRecordHasParametersWithin(durations.get("test.test"), 1, 0, 0, 0, 100);
+		assertThat(stats.getAllDurationsSnapshot()).isNotNull().isEmpty();
+	}
+
+	@Test
+	public void testGetAllOccurrencesSnapshot() {
+		stats.addOccurrence("test.test");
+		Map<String, Long> occurrences = stats.getAllOccurrencesSnapshot();
+		assertThat(occurrences).isNotNull().containsOnlyKeys("test.test").containsValues(1L);
+	}
+
+	@Test
+	public void testGetAllOccurrencesSnapshotAndReset() {
+		stats.addOccurrence("test.test");
+		Map<String, Long> occurrences = stats.getAllOccurrencesSnapshotAndReset();
+		assertThat(occurrences).isNotNull().containsOnlyKeys("test.test").containsValues(1L);
+		assertThat(stats.getAllOccurrencesSnapshot()).isNotNull().isEmpty();
 	}
 }
