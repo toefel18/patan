@@ -45,9 +45,11 @@ Some examples:
 
  // retrieve results
  public void printResults() {
-    Map<String, Statistic> statisticsByName = STATISTICS.getSnapshot();
-
-    // each key has a corresponding statistic which provides samplecount/min/max/avg/variance/standarddeviation
+    Snapshot snapshot = STATISTICS.getSnapshot();
+    
+    snapshot.getOccurrences();   // each key has a Long with the corresponding value of "timesOccurred"  
+    snapshot.getDurations();     // each key has a corresponding statistic which provides samplecount/min/max/avg/variance/standarddeviation
+    snapshot.getSamples();       // each key has a corresponding statistic which provides samplecount/min/max/avg/variance/standarddeviation
  }
 
 ```
