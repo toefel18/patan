@@ -1,4 +1,4 @@
-# Small Java library for sampling code. ![patan-logo](patan.png) 
+# ![patan-logo](patan.png) Small Java library for sampling code.  
 
  [![travis-ci](https://travis-ci.org/toefel18/patan.svg?branch=master "build")](https://travis-ci.org/toefel18/patan) [![codecov.io](https://codecov.io/github/toefel18/patan/coverage.svg?branch=master "coverage")](https://codecov.io/github/toefel18/patan) [![coverity](https://scan.coverity.com/projects/7773/badge.svg "Coverity Scan Build Status")](https://scan.coverity.com/projects/toefel18-patan) [![Stories in Progress](https://badge.waffle.io/toefel18/patan.svg?label=patan%3Ain%20progress&title=In%20Progress)](http://waffle.io/toefel18/patan) [ ![Download](https://api.bintray.com/packages/toefel18/maven/patan/images/download.svg) ](https://bintray.com/toefel18/maven/patan/_latestVersion)
 
