@@ -19,13 +19,17 @@
 package nl.toefel.java.code.measurements;
 
 import nl.toefel.java.code.measurements.api.Statistics;
-import nl.toefel.java.code.measurements.referenceimpl.SingleThreadStatisticsFacade;
-import nl.toefel.java.code.measurements.referenceimpl.SynchronizedStatistics;
+import nl.toefel.java.code.measurements.singlethreadedimpl.SingleThreadedStatisticsFacade;
+import nl.toefel.java.code.measurements.singlethreadedimpl.SynchronizedStatistics;
 
 /**
  * Factory for statistics instances. All clients should use this factory to create {@link Statistics} instances.
  */
 public final class StatisticsFactory {
+
+    private StatisticsFactory() {
+        // factory class, do not instantiate
+    }
 
     /**
      * Creates a thread-safe {@link Statistics} implementation that is unrelated to all other instances of statistics.
@@ -33,7 +37,7 @@ public final class StatisticsFactory {
      * @return a new thread-safe Statistics instance
      */
     public static Statistics createThreadsafeStatistics () {
-        return new SynchronizedStatistics(new SingleThreadStatisticsFacade());
+        return new SynchronizedStatistics(new SingleThreadedStatisticsFacade());
     }
 
     /**
@@ -43,6 +47,6 @@ public final class StatisticsFactory {
      * @return a new non-thread-safe instance
      */
     public static Statistics createSingleThreadedStatistics() {
-        return new SingleThreadStatisticsFacade();
+        return new SingleThreadedStatisticsFacade();
     }
 }

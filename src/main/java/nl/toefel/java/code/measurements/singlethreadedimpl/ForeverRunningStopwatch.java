@@ -16,15 +16,23 @@
  *
  */
 
-package nl.toefel.java.code.measurements.referenceimpl;
+package nl.toefel.java.code.measurements.singlethreadedimpl;
 
-import nl.toefel.java.code.measurements.StatisticsFactory;
-import nl.toefel.java.code.measurements.StatisticsApiTestBase;
-import nl.toefel.java.code.measurements.api.Statistics;
+import nl.toefel.java.code.measurements.api.Stopwatch;
 
-public class SynchronizedStatisticsTest extends StatisticsApiTestBase {
-    @Override
-    protected Statistics createStatistics() {
-        return StatisticsFactory.createThreadsafeStatistics();
-    }
+public class ForeverRunningStopwatch implements Stopwatch {
+	protected final long millisAtStart;
+
+	public static ForeverRunningStopwatch startNewStopwatch() {
+		return new ForeverRunningStopwatch(System.currentTimeMillis());
+	}
+
+	protected ForeverRunningStopwatch(long millisAtStart) {
+		this.millisAtStart = millisAtStart;
+	}
+
+	@Override
+	public long elapsedMillis() {
+		return System.currentTimeMillis() - millisAtStart;
+	}
 }

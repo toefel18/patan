@@ -19,6 +19,16 @@ package nl.toefel.java.code.measurements.api;
 /**
  * This is the interface that implementations should implement.
  */
-public interface Statistics extends DurationStore, OccurrenceStore, SampleStore, Query {
+public interface Statistics extends DurationStore, OccurrenceStore, SampleStore {
+
+	/**
+	 * @return a snapshot of all collected data (durations, occurrences and samples)
+	 */
+	Snapshot getSnapshot();
+
+	/**
+	 * @return a snapshot of all collected data (durations, occurrences and samples)
+	 */
+	Snapshot getSnapshotAndReset();
 
 }

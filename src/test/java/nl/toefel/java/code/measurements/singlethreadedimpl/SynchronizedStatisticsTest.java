@@ -16,41 +16,15 @@
  *
  */
 
-package nl.toefel.java.code.measurements.referenceimpl;
+package nl.toefel.java.code.measurements.singlethreadedimpl;
 
+import nl.toefel.java.code.measurements.StatisticsApiTestBase;
 import nl.toefel.java.code.measurements.StatisticsFactory;
 import nl.toefel.java.code.measurements.api.Statistics;
-import nl.toefel.java.code.measurements.concurrencytest.ConcurrencyTestBase;
-import org.junit.Test;
 
-public class SynchronizedStatisticsConcurrencyTest extends ConcurrencyTestBase {
+public class SynchronizedStatisticsTest extends StatisticsApiTestBase {
     @Override
     protected Statistics createStatistics() {
         return StatisticsFactory.createThreadsafeStatistics();
-    }
-
-    @Test
-    public void testConcurrencyOneThreadEach() {
-        runConcurrencyTest(1, 10000);
-    }
-
-    @Test
-    public void testConcurrencyTwoThreadEach() {
-        runConcurrencyTest(2, 10000);
-    }
-
-    @Test
-    public void testConcurrencyTenThreadsEach() {
-        runConcurrencyTest(10, 10000);
-    }
-
-    @Test
-    public void testConcurrencyHundredThreadsEach() {
-        runConcurrencyTest(100, 10000);
-    }
-
-    @Test
-    public void testConcurrencyFiveHundredThreadsEach() {
-        runConcurrencyTest(500, 10000);
     }
 }

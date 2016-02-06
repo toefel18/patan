@@ -16,10 +16,10 @@
  *
  */
 
-package nl.toefel.java.code.measurements.referenceimpl;
+package nl.toefel.java.code.measurements.singlethreadedimpl;
 
-import nl.toefel.java.code.measurements.StatisticsFactory;
 import nl.toefel.java.code.measurements.StatisticsApiTestBase;
+import nl.toefel.java.code.measurements.StatisticsFactory;
 import nl.toefel.java.code.measurements.api.Statistics;
 
 public class SingleThreadedStatisticsFacadeTest extends StatisticsApiTestBase {

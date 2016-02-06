@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package nl.toefel.java.code.measurements.referenceimpl;
+package nl.toefel.java.code.measurements.singlethreadedimpl;
 
 public class TimingHelper {
 

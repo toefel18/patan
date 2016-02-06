@@ -16,16 +16,40 @@
 
 package nl.toefel.java.code.measurements.api;
 
+import java.util.Map;
+
 /**
  * Methods for adding samples of value to the store. The values can then be summarized in a statistics record.
  */
-public interface SampleStore {
+public interface SampleStore extends Resettable {
 
 	/**
-	 * Adds a sample for the variable with the name 'eventName'.
+	 * Adds a sample for the variable with the name 'name'.
 	 *
-	 * @param eventName the name of the sample
+	 * @param name the name of the sample
 	 * @param value current value to record into the distribution
 	 */
-	void addSample(String eventName, long value);
+	void addSample(String name, long value);
+
+	/**
+	 * Finds the current statistical value for the event with the given name. If the name has not been found,
+	 * a empty statistic will be returned, use the {@link Statistic#isEmpty()} method to check if a statistic with values
+	 * was returned.
+	 *
+	 * @param name the name of the event to lookup
+	 * @return a copy of the internal statistic, never null
+	 */
+	Statistic findStatistic(String name);
+
+	/**
+	 * @return the snapshot of all stored samples
+	 */
+	Map<String, Statistic> getAllSamplesSnapshot();
+
+	/**
+	 * Retrieves the current collected statistics and returns them. All the current statistics are cleared.
+	 *
+	 * @return a snapshot of all samples
+	 */
+	Map<String, Statistic> getAllSamplesSnapshotAndReset();
 }

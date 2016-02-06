@@ -14,46 +14,59 @@
  *    limitations under the License.
  */
 
-package nl.toefel.java.code.measurements.referenceimpl;
+package nl.toefel.java.code.measurements.singlethreadedimpl;
 
-import nl.toefel.java.code.measurements.api.*;
+import nl.toefel.java.code.measurements.api.SampleStore;
+import nl.toefel.java.code.measurements.api.Statistic;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static nl.toefel.java.code.measurements.referenceimpl.StatisticRecord.copyOf;
+public class StatisticRecordStore implements SampleStore {
 
-public class StatisticRecordStore  {
+	private Map<String, Statistic> recordsByName = new ConcurrentHashMap<String, Statistic>();
 
-	private Map<String, StatisticRecord> recordsByName = new ConcurrentHashMap<String, StatisticRecord>();
-
+	@Override
 	public void addSample(String eventName, long value) {
-		// not threadsafe
 		if (recordsByName.containsKey(eventName)) {
-			recordsByName.put(eventName, recordsByName.get(eventName).addSample(value));
+			recordsByName.put(eventName, recordsByName.get(eventName).addSampleValue(value));
 		} else {
-			recordsByName.put(eventName, StatisticRecord.createWithSingleSample(eventName, value));
+			recordsByName.put(eventName, Statistic.createWithSingleSample(value));
 		}
 	}
 
+	@Override
 	public Statistic findStatistic(final String eventName) {
 		Statistic statistic = recordsByName.get(eventName);
 		if (statistic == null) {
-			return StatisticRecord.createEmpty(eventName);
+			return Statistic.createEmpty();
 		} else {
 			return statistic;
 		}
 	}
 
-	public SortedMap<String, Statistic> getSortedSnapshot() {
+	@Override
+	public SortedMap<String, Statistic> getAllSamplesSnapshot() {
 		SortedMap<String, Statistic> snapshot = new TreeMap<String, Statistic>();
 		for (String name: recordsByName.keySet()) {
-			snapshot.put(name, copyOf(recordsByName.get(name)));
+			snapshot.put(name, recordsByName.get(name));
 		}
 		return snapshot;
 	}
 
+	@Override
+	public SortedMap<String, Statistic> getAllSamplesSnapshotAndReset() {
+		SortedMap<String, Statistic> snapshot = getAllSamplesSnapshot();
+		reset();
+		return snapshot;
+	}
+
+
+	@Override
 	public void reset() {
-		recordsByName = new HashMap<String, StatisticRecord>();
+		recordsByName = new HashMap<String, Statistic>();
 	}
 }

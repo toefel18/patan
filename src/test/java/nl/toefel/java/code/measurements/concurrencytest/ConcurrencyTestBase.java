@@ -18,12 +18,11 @@
 
 package nl.toefel.java.code.measurements.concurrencytest;
 
-import nl.toefel.java.code.measurements.api.Statistic;
+import nl.toefel.java.code.measurements.api.Snapshot;
 import nl.toefel.java.code.measurements.api.Statistics;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static nl.toefel.java.code.measurements.concurrencytest.TaskFactory.*;
@@ -116,10 +115,13 @@ public abstract class ConcurrencyTestBase {
         start();
         waitTillAllTasksFinish();
 
-        Map<String, Statistic> statistics = subject.getSortedSnapshot();
-        assertThat(statistics).hasSize(3).containsOnlyKeys(OCCURRENCE_EVENT, SAMPLE_EVENT, DURATION_EVENT);
-        assertSampleCountIsAsExpected(occurrenceThreads, samplesThreads, durationsThreads, loopsPerThread, statistics);
-        assertSampleCountIsSameAsPostedEventsByTasks(statistics);
+        Snapshot snapshot = subject.getSnapshot();
+        assertThat(snapshot.getOccurrences()).containsOnlyKeys(OCCURRENCE_EVENT);
+        assertThat(snapshot.getDurations()).containsOnlyKeys(DURATION_EVENT);
+        assertThat(snapshot.getSamples()).containsOnlyKeys(SAMPLE_EVENT);
+
+        assertSampleCountIsAsExpected(occurrenceThreads, samplesThreads, durationsThreads, loopsPerThread, snapshot);
+        assertSampleCountIsSameAsPostedEventsByTasks(snapshot);
         assertNoTasksIndicateFailure();
     }
 
@@ -132,20 +134,20 @@ public abstract class ConcurrencyTestBase {
     private void assertSampleCountIsAsExpected(int occurrenceThreads,
                                                int samplesThreads,
                                                int durationsThreads,
-                                               int loopsPerThread, Map<String, Statistic> statistics) {
-        assertThat(statistics.get(OCCURRENCE_EVENT).getSampleCount()).as("expected occurrences").isEqualTo(occurrenceThreads * loopsPerThread);
-        assertThat(statistics.get(SAMPLE_EVENT).getSampleCount()).as("expected samples").isEqualTo(samplesThreads * loopsPerThread);
-        assertThat(statistics.get(DURATION_EVENT).getSampleCount()).as("expected durations").isEqualTo(durationsThreads * loopsPerThread);
+                                               int loopsPerThread,Snapshot snapshot) {
+        assertThat(snapshot.getOccurrences().get(OCCURRENCE_EVENT)).as("expected occurrences").isEqualTo(occurrenceThreads * loopsPerThread);
+        assertThat(snapshot.getSamples().get(SAMPLE_EVENT).getSampleCount()).as("expected samples").isEqualTo(samplesThreads * loopsPerThread);
+        assertThat(snapshot.getDurations().get(DURATION_EVENT).getSampleCount()).as("expected durations").isEqualTo(durationsThreads * loopsPerThread);
     }
 
-    private void assertSampleCountIsSameAsPostedEventsByTasks(Map<String, Statistic> statistics) {
+    private void assertSampleCountIsSameAsPostedEventsByTasks(Snapshot snapshot) {
         int occurrencesPosted = countEventsPostedByTasks(OCCURRENCE_EVENT);
         int samplesPosted = countEventsPostedByTasks(SAMPLE_EVENT);
         int durationsPosted = countEventsPostedByTasks(DURATION_EVENT);
 
-        assertThat(statistics.get(OCCURRENCE_EVENT).getSampleCount()).as("").isEqualTo(occurrencesPosted);
-        assertThat(statistics.get(SAMPLE_EVENT).getSampleCount()).as("recored samples").isEqualTo(samplesPosted);
-        assertThat(statistics.get(DURATION_EVENT).getSampleCount()).as("recored durations").isEqualTo(durationsPosted);
+        assertThat(snapshot.getOccurrences().get(OCCURRENCE_EVENT)).as("recorded occurrences").isEqualTo(occurrencesPosted);
+        assertThat(snapshot.getSamples().get(SAMPLE_EVENT).getSampleCount()).as("recored samples").isEqualTo(samplesPosted);
+        assertThat(snapshot.getDurations().get(DURATION_EVENT).getSampleCount()).as("recored durations").isEqualTo(durationsPosted);
     }
 }
 

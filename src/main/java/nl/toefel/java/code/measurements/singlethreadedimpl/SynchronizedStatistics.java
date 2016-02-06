@@ -16,13 +16,14 @@
  *
  */
 
-package nl.toefel.java.code.measurements.referenceimpl;
+package nl.toefel.java.code.measurements.singlethreadedimpl;
 
+import nl.toefel.java.code.measurements.api.Snapshot;
 import nl.toefel.java.code.measurements.api.Statistic;
 import nl.toefel.java.code.measurements.api.Statistics;
 import nl.toefel.java.code.measurements.api.Stopwatch;
 
-import java.util.SortedMap;
+import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -46,6 +47,36 @@ public class SynchronizedStatistics implements Statistics {
         try {
             rwLock.writeLock().lock();
             statistics.recordElapsedTime(eventName, stopwatch);
+        } finally {
+            rwLock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public Statistic findDuration(final String name) {
+        try {
+            rwLock.readLock().lock();
+            return statistics.findDuration(name);
+        } finally {
+            rwLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Map<String, Statistic> getAllDurationsSnapshot() {
+        try {
+            rwLock.readLock().lock();
+            return statistics.getAllDurationsSnapshot();
+        } finally {
+            rwLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Map<String, Statistic> getAllDurationsSnapshotAndReset() {
+        try {
+            rwLock.writeLock().lock();
+            return statistics.getAllDurationsSnapshotAndReset();
         } finally {
             rwLock.writeLock().unlock();
         }
@@ -82,7 +113,27 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public Statistic findOccurrence(String eventName) {
+    public Map<String, Statistic> getAllSamplesSnapshot() {
+        try {
+            rwLock.readLock().lock();
+            return statistics.getAllSamplesSnapshot();
+        } finally {
+            rwLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Map<String, Statistic> getAllSamplesSnapshotAndReset() {
+        try {
+            rwLock.writeLock().lock();
+            return statistics.getAllSamplesSnapshotAndReset();
+        } finally {
+            rwLock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public long findOccurrence(String eventName) {
         try {
             rwLock.readLock().lock();
             return statistics.findOccurrence(eventName);
@@ -92,20 +143,20 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public SortedMap<String, Statistic> getSortedSnapshot() {
+    public Map<String, Long> getAllOccurrencesSnapshot() {
         try {
             rwLock.readLock().lock();
-            return statistics.getSortedSnapshot();
+            return statistics.getAllOccurrencesSnapshot();
         } finally {
             rwLock.readLock().unlock();
         }
     }
 
     @Override
-    public SortedMap<String, Statistic> getSortedSnapshotAndReset() {
+    public Map<String, Long> getAllOccurrencesSnapshotAndReset() {
         try {
             rwLock.writeLock().lock();
-            return statistics.getSortedSnapshotAndReset();
+            return statistics.getAllOccurrencesSnapshotAndReset();
         } finally {
             rwLock.writeLock().unlock();
         }
@@ -126,6 +177,26 @@ public class SynchronizedStatistics implements Statistics {
         try {
             rwLock.writeLock().lock();
             statistics.addSample(eventName, value);
+        } finally {
+            rwLock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public Snapshot getSnapshot() {
+        try {
+            rwLock.readLock().lock();
+            return statistics.getSnapshot();
+        } finally {
+            rwLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Snapshot getSnapshotAndReset() {
+        try {
+            rwLock.writeLock().lock();
+            return statistics.getSnapshotAndReset();
         } finally {
             rwLock.writeLock().unlock();
         }
