@@ -17,7 +17,7 @@
 package nl.toefel.java.code.measurements.singlethreadedimpl;
 
 import nl.toefel.java.code.measurements.api.SampleStore;
-import nl.toefel.java.code.measurements.api.Statistic;
+import nl.toefel.java.code.measurements.api.StatisticalDistribution;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,30 +27,30 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class StatisticRecordStore implements SampleStore {
 
-	private Map<String, Statistic> recordsByName = new ConcurrentHashMap<String, Statistic>();
+	private Map<String, StatisticalDistribution> recordsByName = new ConcurrentHashMap<String, StatisticalDistribution>();
 
 	@Override
 	public void addSample(String eventName, long value) {
 		if (recordsByName.containsKey(eventName)) {
-			recordsByName.put(eventName, recordsByName.get(eventName).addSampleValue(value));
+			recordsByName.put(eventName, recordsByName.get(eventName).newWithExtraSample(value));
 		} else {
-			recordsByName.put(eventName, Statistic.createWithSingleSample(value));
+			recordsByName.put(eventName, ImmutableStatisticalDistribution.createWithSingleSample(value));
 		}
 	}
 
 	@Override
-	public Statistic findStatistic(final String eventName) {
-		Statistic statistic = recordsByName.get(eventName);
-		if (statistic == null) {
-			return Statistic.createEmpty();
+	public StatisticalDistribution findStatistic(final String eventName) {
+		StatisticalDistribution statisticalDistribution = recordsByName.get(eventName);
+		if (statisticalDistribution == null) {
+			return ImmutableStatisticalDistribution.createEmpty();
 		} else {
-			return statistic;
+			return statisticalDistribution;
 		}
 	}
 
 	@Override
-	public SortedMap<String, Statistic> getAllSamplesSnapshot() {
-		SortedMap<String, Statistic> snapshot = new TreeMap<String, Statistic>();
+	public SortedMap<String, StatisticalDistribution> getAllSamplesSnapshot() {
+		SortedMap<String, StatisticalDistribution> snapshot = new TreeMap<String, StatisticalDistribution>();
 		for (String name: recordsByName.keySet()) {
 			snapshot.put(name, recordsByName.get(name));
 		}
@@ -58,8 +58,8 @@ public class StatisticRecordStore implements SampleStore {
 	}
 
 	@Override
-	public SortedMap<String, Statistic> getAllSamplesSnapshotAndReset() {
-		SortedMap<String, Statistic> snapshot = getAllSamplesSnapshot();
+	public SortedMap<String, StatisticalDistribution> getAllSamplesSnapshotAndReset() {
+		SortedMap<String, StatisticalDistribution> snapshot = getAllSamplesSnapshot();
 		reset();
 		return snapshot;
 	}
@@ -67,6 +67,6 @@ public class StatisticRecordStore implements SampleStore {
 
 	@Override
 	public void reset() {
-		recordsByName = new HashMap<String, Statistic>();
+		recordsByName = new HashMap<String, StatisticalDistribution>();
 	}
 }

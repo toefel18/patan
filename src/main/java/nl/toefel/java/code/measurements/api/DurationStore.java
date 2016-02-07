@@ -41,25 +41,25 @@ public interface DurationStore extends Resettable {
 
 	/**
 	 * Finds the current statistical value for the recored duration with the given name. If the name has not been found,
-	 * a empty statistic will be returned, use the {@link Statistic#isEmpty()} method to check if a statistic with values
+	 * a empty statistic will be returned, use the {@link StatisticalDistribution#isEmpty()} method to check if a statistic with values
 	 * was returned.
 	 *
 	 * @param name the name of the event to lookup
 	 * @return a copy of the internal statistic, never null
 	 */
-	Statistic findDuration(String name);
+	StatisticalDistribution findDuration(String name);
 
 	/**
 	 * Returns a snapshot of all the recorded durations
 	 *
 	 * @return a copy of the internal state that is detached from the implementation
 	 */
-	Map<String, Statistic> getAllDurationsSnapshot();
+	Map<String, StatisticalDistribution> getAllDurationsSnapshot();
 
 	/**
 	 * Returns a snapshot of all the recorded durations and clears the internal state
 	 *
 	 * @return a copy of the internal state that is detached from the implementation
 	 */
-	Map<String, Statistic> getAllDurationsSnapshotAndReset();
+	Map<String, StatisticalDistribution> getAllDurationsSnapshotAndReset();
 }

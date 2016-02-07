@@ -18,7 +18,7 @@
 
 package nl.toefel.java.code.measurements.concurrencytest;
 
-import nl.toefel.java.code.measurements.api.Statistic;
+import nl.toefel.java.code.measurements.api.StatisticalDistribution;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -33,8 +33,8 @@ class FindStatisticTask extends ConcurrentTask {
     @Override
     protected void doPost(String eventName) {
         try {
-            Statistic statistic = ConcurrencyTestBase.subject.findStatistic(eventName);
-            assertThat(statistic).isNotNull();
+            StatisticalDistribution statisticalDistribution = ConcurrencyTestBase.subject.findStatistic(eventName);
+            assertThat(statisticalDistribution).isNotNull();
         } catch (Throwable t) {
             failed = true;
             System.out.println(t.getMessage());

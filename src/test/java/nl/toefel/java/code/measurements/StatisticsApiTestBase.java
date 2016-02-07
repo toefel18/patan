@@ -19,7 +19,7 @@
 package nl.toefel.java.code.measurements;
 
 import nl.toefel.java.code.measurements.api.Snapshot;
-import nl.toefel.java.code.measurements.api.Statistic;
+import nl.toefel.java.code.measurements.api.StatisticalDistribution;
 import nl.toefel.java.code.measurements.api.Statistics;
 import nl.toefel.java.code.measurements.api.Stopwatch;
 import org.junit.Before;
@@ -48,7 +48,7 @@ public abstract class StatisticsApiTestBase {
 
 	@Test
 	public void testFindStatisticsNotNull() {
-		Statistic empty = stats.findStatistic("test.empty");
+		StatisticalDistribution empty = stats.findStatistic("test.empty");
 		assertThat(empty).isNotNull();
 		assertThat(empty.isEmpty()).isTrue();
 	}
@@ -57,6 +57,13 @@ public abstract class StatisticsApiTestBase {
 	public void testFindOccurrenceNotNull() {
 		long emptyCounter = stats.findOccurrence("test.empty");
 		assertThat(emptyCounter).isZero();
+	}
+
+	@Test
+	public void testFindDurationNotNull() {
+		StatisticalDistribution empty = stats.findDuration("test.empty");
+		assertThat(empty).isNotNull();
+		assertThat(empty.isEmpty()).isTrue();
 	}
 
 	@Test
@@ -73,11 +80,11 @@ public abstract class StatisticsApiTestBase {
 		expensiveMethodTakingMillis(100);
 		stats.recordElapsedTime("test.duration", stopwatch);
 
-		Statistic record = stats.findDuration("test.duration");
+		StatisticalDistribution record = stats.findDuration("test.duration");
 
 		assertRecordHasParametersWithin(record, 1, 100, 100, 100, 20);
-		assertThat(record.getSampleVariance()).as("variance").isCloseTo(0.0d, within(0.0d));
-		assertThat(record.getSampleStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
+		assertThat(record.getVariance()).as("variance").isCloseTo(0.0d, within(0.0d));
+		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
 	}
 
 	@Test
@@ -90,10 +97,10 @@ public abstract class StatisticsApiTestBase {
 		expensiveMethodTakingMillis(150);
 		stats.recordElapsedTime("test.duration", anotherStopwatch);
 
-		Statistic record = stats.findDuration("test.duration");
+		StatisticalDistribution record = stats.findDuration("test.duration");
 		assertRecordHasParametersWithin(record, 2, 80, 150, 115.0d, 20);
-		assertThat(record.getSampleVariance()).as("variance").isCloseTo(2450.0d, within(200.0d));
-		assertThat(record.getSampleStdDeviation()).as("standardDeviation").isCloseTo(50, within(5.0d));
+		assertThat(record.getVariance()).as("variance").isCloseTo(2450.0d, within(200.0d));
+		assertThat(record.getStdDeviation()).as("standardDeviation").isCloseTo(50, within(5.0d));
 	}
 
 	@Test
@@ -105,7 +112,14 @@ public abstract class StatisticsApiTestBase {
 	@Test
 	public void testAddOccurrence_findStatistic() {
 		stats.addOccurrence("test.occurrence");
-		Statistic counterStat = stats.findStatistic("test.occurrence");
+		StatisticalDistribution counterStat = stats.findStatistic("test.occurrence");
+		assertThat(counterStat.isEmpty()).as("occurences are queried through findOccurence").isTrue();
+	}
+
+	@Test
+	public void testAddOccurrence_findDuration() {
+		stats.addOccurrence("test.occurrence");
+		StatisticalDistribution counterStat = stats.findDuration("test.occurrence");
 		assertThat(counterStat.isEmpty()).as("occurences are queried through findOccurence").isTrue();
 	}
 
@@ -143,7 +157,7 @@ public abstract class StatisticsApiTestBase {
 	@Test
 	public void testAddSample() {
 		stats.addSample("test.sample", 5);
-		Statistic stat = stats.findStatistic("test.sample");
+		StatisticalDistribution stat = stats.findStatistic("test.sample");
 		assertRecordHasExactParameters(stat, 1, 5, 5, 5, 0, Double.NaN);
 	}
 
@@ -152,25 +166,49 @@ public abstract class StatisticsApiTestBase {
 		stats.addSample("test.sample", 5);
 		stats.addSample("test.sample", 10);
 		stats.addSample("test.sample", 15);
-		Statistic stat = stats.findStatistic("test.sample");
+		StatisticalDistribution stat = stats.findStatistic("test.sample");
 
 		assertThat(stat.getSampleCount()).as("sampleCount").isEqualTo(3);
 		assertThat(stat.getMinimum()).as("minimum").isEqualTo(5);
 		assertThat(stat.getMaximum()).as("maximum").isEqualTo(15);
-		assertThat(stat.getSampleAverage()).as("average").isCloseTo(10, within(0.01d));
-		assertThat(stat.getSampleVariance()).as("variance").isCloseTo(50.0, within(0.01d));
-		assertThat(stat.getSampleStdDeviation()).as("standardDeviation").isCloseTo(5, within(0.01d));
+		assertThat(stat.getAverage()).as("average").isCloseTo(10, within(0.01d));
+		assertThat(stat.getVariance()).as("variance").isCloseTo(50.0, within(0.01d));
+		assertThat(stat.getStdDeviation()).as("standardDeviation").isCloseTo(5, within(0.01d));
+	}
+
+	@Test
+	public void testRecordElapsedTime_calculation() {
+		final long ALLOWED_OFFSET_DRIFT = 15;
+
+		Stopwatch stopwatch = stats.startStopwatch();
+
+		stats.recordElapsedTime("test.test", stopwatch); // approx 0ms
+		long millisStart = stopwatch.elapsedMillis();
+		expensiveMethodTakingMillis(100);
+		stats.recordElapsedTime("test.test", stopwatch); //approx 100ms
+		expensiveMethodTakingMillis(100);
+		long millisEnd = stopwatch.elapsedMillis();
+		stats.recordElapsedTime("test.test", stopwatch); //approx 200ms;
+
+		StatisticalDistribution duration = stats.findDuration("test.test");
+
+		assertThat(duration.getSampleCount()).as("sampleCount").isEqualTo(3);
+		assertThat(duration.getMinimum()).as("minimum").isCloseTo(millisStart, within(ALLOWED_OFFSET_DRIFT));
+		assertThat(duration.getMaximum()).as("maximum").isCloseTo(millisEnd, within(ALLOWED_OFFSET_DRIFT));
+		assertThat(duration.getAverage()).as("average").isCloseTo(100, within(50.0d));
+		assertThat(duration.getVariance()).as("variance").isCloseTo(20200, within(1000.0));
+		assertThat(duration.getStdDeviation()).as("standardDeviation").isCloseTo(100, within(5.0));
 	}
 
 	@Test
 	public void testAddSampleAndCounterSameName() {
 		stats.addSample("test.samename", 5);
 		stats.addOccurrence("test.samename");
+		stats.recordElapsedTime("test.test", stats.startStopwatch());
 
-		Statistic stat = stats.findStatistic("test.samename");
-		assertRecordHasExactParameters(stat, 1, 5, 5, 5, 0, Double.NaN);
-
+		assertRecordHasExactParameters(stats.findStatistic("test.samename"), 1, 5, 5, 5, 0, Double.NaN);
 		assertThat(stats.findOccurrence("test.samename")).isEqualTo(1);
+		assertRecordHasParametersWithin(stats.findDuration("test.test"), 1, 0, 0, 0, 10);
 	}
 
 	@Test
@@ -184,6 +222,7 @@ public abstract class StatisticsApiTestBase {
 		assertThat(snapshot.getOccurrences()).containsKeys("test.test");
 		assertThat(snapshot.getSamples()).containsKeys("test.test");
 		assertThat(snapshot.getDurations()).containsKeys("test.test");
+
 		assertThat(snapshot.getOccurrences().get("test.test")).isEqualTo(1L);
 		assertRecordHasExactParameters(snapshot.getSamples().get("test.test"), 1, 5, 5, 5, 0, Double.NaN);
 		assertRecordHasParametersWithin(snapshot.getDurations().get("test.test"), 1, 0, 0, 0, 10);
@@ -220,7 +259,7 @@ public abstract class StatisticsApiTestBase {
 	@Test
 	public void testGetAllSamplesSnapshot() {
 		stats.addSample("test.test", 100);
-		Map<String, Statistic> samples = stats.getAllSamplesSnapshot();
+		Map<String, StatisticalDistribution> samples = stats.getAllSamplesSnapshot();
 		assertThat(samples).isNotNull().hasSize(1);
 		assertRecordHasExactParameters(samples.get("test.test"), 1, 100, 100, 100, 0, Double.NaN);
 	}
@@ -228,7 +267,7 @@ public abstract class StatisticsApiTestBase {
 	@Test
 	public void testGetAllSamplesSnapshotAndReset() {
 		stats.addSample("test.test", 100);
-		Map<String, Statistic> samples = stats.getAllSamplesSnapshotAndReset();
+		Map<String, StatisticalDistribution> samples = stats.getAllSamplesSnapshotAndReset();
 		assertThat(samples).isNotNull().hasSize(1);
 		assertRecordHasExactParameters(samples.get("test.test"), 1, 100, 100, 100, 0, Double.NaN);
 		assertThat(stats.getAllSamplesSnapshot()).isNotNull().isEmpty();
@@ -237,7 +276,7 @@ public abstract class StatisticsApiTestBase {
 	@Test
 	public void testGetAllDurationsSnapshot() {
 		stats.recordElapsedTime("test.test", stats.startStopwatch());
-		Map<String, Statistic> durations = stats.getAllDurationsSnapshot();
+		Map<String, StatisticalDistribution> durations = stats.getAllDurationsSnapshot();
 		assertThat(durations).isNotNull().hasSize(1);
 		assertRecordHasParametersWithin(durations.get("test.test"), 1, 0, 0, 0, 100);
 	}
@@ -245,7 +284,7 @@ public abstract class StatisticsApiTestBase {
 	@Test
 	public void testGetAllDurationsSnapshotAndReset() {
 		stats.recordElapsedTime("test.test", stats.startStopwatch());
-		Map<String, Statistic> durations = stats.getAllDurationsSnapshotAndReset();
+		Map<String, StatisticalDistribution> durations = stats.getAllDurationsSnapshotAndReset();
 		assertThat(durations).isNotNull().hasSize(1);
 		assertRecordHasParametersWithin(durations.get("test.test"), 1, 0, 0, 0, 100);
 		assertThat(stats.getAllDurationsSnapshot()).isNotNull().isEmpty();

@@ -17,7 +17,7 @@
 package nl.toefel.java.code.measurements.singlethreadedimpl;
 
 import nl.toefel.java.code.measurements.api.Snapshot;
-import nl.toefel.java.code.measurements.api.Statistic;
+import nl.toefel.java.code.measurements.api.StatisticalDistribution;
 import nl.toefel.java.code.measurements.api.Statistics;
 import nl.toefel.java.code.measurements.api.Stopwatch;
 
@@ -45,17 +45,17 @@ public class SingleThreadedStatisticsFacade implements Statistics {
 	}
 
 	@Override
-	public Statistic findDuration(final String name) {
+	public StatisticalDistribution findDuration(final String name) {
 		return durationStore.findStatistic(name);
 	}
 
 	@Override
-	public Map<String, Statistic> getAllDurationsSnapshot() {
+	public Map<String, StatisticalDistribution> getAllDurationsSnapshot() {
 		return durationStore.getAllSamplesSnapshot();
 	}
 
 	@Override
-	public Map<String, Statistic> getAllDurationsSnapshotAndReset() {
+	public Map<String, StatisticalDistribution> getAllDurationsSnapshotAndReset() {
 		return durationStore.getAllSamplesSnapshotAndReset();
 	}
 
@@ -75,17 +75,17 @@ public class SingleThreadedStatisticsFacade implements Statistics {
 	}
 
 	@Override
-	public Statistic findStatistic(final String eventName) {
+	public StatisticalDistribution findStatistic(final String eventName) {
 		return sampleStore.findStatistic(eventName);
 	}
 
 	@Override
-	public Map<String, Statistic> getAllSamplesSnapshot() {
+	public Map<String, StatisticalDistribution> getAllSamplesSnapshot() {
 		return sampleStore.getAllSamplesSnapshot();
 	}
 
 	@Override
-	public Map<String, Statistic> getAllSamplesSnapshotAndReset() {
+	public Map<String, StatisticalDistribution> getAllSamplesSnapshotAndReset() {
 		return sampleStore.getAllSamplesSnapshotAndReset();
 	}
 
@@ -113,12 +113,12 @@ public class SingleThreadedStatisticsFacade implements Statistics {
 
 	@Override
 	public Snapshot getSnapshot() {
-		return new Snapshot(getAllSamplesSnapshot(), getAllOccurrencesSnapshot(), getAllDurationsSnapshot());
+		return new DetachedSnapshot(getAllSamplesSnapshot(), getAllOccurrencesSnapshot(), getAllDurationsSnapshot());
 	}
 
 	@Override
 	public Snapshot getSnapshotAndReset() {
-		return new Snapshot(getAllSamplesSnapshotAndReset(), getAllOccurrencesSnapshotAndReset(), getAllDurationsSnapshotAndReset());
+		return new DetachedSnapshot(getAllSamplesSnapshotAndReset(), getAllOccurrencesSnapshotAndReset(), getAllDurationsSnapshotAndReset());
 	}
 
 }

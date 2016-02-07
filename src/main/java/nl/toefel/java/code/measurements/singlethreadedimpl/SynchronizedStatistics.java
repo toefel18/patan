@@ -19,7 +19,7 @@
 package nl.toefel.java.code.measurements.singlethreadedimpl;
 
 import nl.toefel.java.code.measurements.api.Snapshot;
-import nl.toefel.java.code.measurements.api.Statistic;
+import nl.toefel.java.code.measurements.api.StatisticalDistribution;
 import nl.toefel.java.code.measurements.api.Statistics;
 import nl.toefel.java.code.measurements.api.Stopwatch;
 
@@ -53,7 +53,7 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public Statistic findDuration(final String name) {
+    public StatisticalDistribution findDuration(final String name) {
         try {
             rwLock.readLock().lock();
             return statistics.findDuration(name);
@@ -63,7 +63,7 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public Map<String, Statistic> getAllDurationsSnapshot() {
+    public Map<String, StatisticalDistribution> getAllDurationsSnapshot() {
         try {
             rwLock.readLock().lock();
             return statistics.getAllDurationsSnapshot();
@@ -73,7 +73,7 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public Map<String, Statistic> getAllDurationsSnapshotAndReset() {
+    public Map<String, StatisticalDistribution> getAllDurationsSnapshotAndReset() {
         try {
             rwLock.writeLock().lock();
             return statistics.getAllDurationsSnapshotAndReset();
@@ -103,7 +103,7 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public Statistic findStatistic(String eventName) {
+    public StatisticalDistribution findStatistic(String eventName) {
         try {
             rwLock.readLock().lock();
             return statistics.findStatistic(eventName);
@@ -113,7 +113,7 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public Map<String, Statistic> getAllSamplesSnapshot() {
+    public Map<String, StatisticalDistribution> getAllSamplesSnapshot() {
         try {
             rwLock.readLock().lock();
             return statistics.getAllSamplesSnapshot();
@@ -123,7 +123,7 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public Map<String, Statistic> getAllSamplesSnapshotAndReset() {
+    public Map<String, StatisticalDistribution> getAllSamplesSnapshotAndReset() {
         try {
             rwLock.writeLock().lock();
             return statistics.getAllSamplesSnapshotAndReset();

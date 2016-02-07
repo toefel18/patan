@@ -19,29 +19,30 @@
 package nl.toefel.java.code.measurements.singlethreadedimpl;
 
 import nl.toefel.java.code.measurements.api.Snapshot;
-import nl.toefel.java.code.measurements.api.Statistic;
+import nl.toefel.java.code.measurements.api.StatisticalDistribution;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
 public class AssertionHelper {
 
-	public static void assertRecordHasExactParameters(final Statistic record,
+	public static void assertRecordHasExactParameters(final StatisticalDistribution record,
 												final long samples,
 												final long min,
 												final long max,
 												final double avg,
 												final double variance,
 												final double stddev) {
+		assertThat(record).as("StatisticalDistribution should never be null").isNotNull();
 		assertThat(record.getSampleCount()).as("sampleCount").isEqualTo(samples);
 		assertThat(record.getMinimum()).as("minimum").isEqualTo(min);
 		assertThat(record.getMaximum()).as("maximum").isEqualTo(max);
-		assertThat(record.getSampleAverage()).as("average").isEqualTo(avg);
-		assertThat(record.getSampleVariance()).as("variance").isEqualTo(variance);
-		assertThat(record.getSampleStdDeviation()).as("standardDeviation").isEqualTo(stddev);
+		assertThat(record.getAverage()).as("average").isEqualTo(avg);
+		assertThat(record.getVariance()).as("variance").isEqualTo(variance);
+		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(stddev);
 	}
 
-	public static void assertRecordHasParametersWithin(final Statistic record,
+	public static void assertRecordHasParametersWithin(final StatisticalDistribution record,
 														 final long samples,
 														 final long min,
 														 final long max,
@@ -50,7 +51,7 @@ public class AssertionHelper {
 		assertThat(record.getSampleCount()).as("sampleCount").isEqualTo(samples);
 		assertThat(record.getMinimum()).as("minimum").isCloseTo(min, within(offsetRange));
 		assertThat(record.getMaximum()).as("maximum").isCloseTo(max, within(offsetRange));
-		assertThat(record.getSampleAverage()).as("average").isCloseTo(avg, within((double)offsetRange));
+		assertThat(record.getAverage()).as("average").isCloseTo(avg, within((double)offsetRange));
 	}
 
 	public static Snapshot assertEmpty(Snapshot snapshot) {

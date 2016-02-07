@@ -33,23 +33,23 @@ public interface SampleStore extends Resettable {
 
 	/**
 	 * Finds the current statistical value for the event with the given name. If the name has not been found,
-	 * a empty statistic will be returned, use the {@link Statistic#isEmpty()} method to check if a statistic with values
+	 * a empty statistic will be returned, use the {@link StatisticalDistribution#isEmpty()} method to check if a statistic with values
 	 * was returned.
 	 *
 	 * @param name the name of the event to lookup
 	 * @return a copy of the internal statistic, never null
 	 */
-	Statistic findStatistic(String name);
+	StatisticalDistribution findStatistic(String name);
 
 	/**
 	 * @return the snapshot of all stored samples
 	 */
-	Map<String, Statistic> getAllSamplesSnapshot();
+	Map<String, StatisticalDistribution> getAllSamplesSnapshot();
 
 	/**
 	 * Retrieves the current collected statistics and returns them. All the current statistics are cleared.
 	 *
 	 * @return a snapshot of all samples
 	 */
-	Map<String, Statistic> getAllSamplesSnapshotAndReset();
+	Map<String, StatisticalDistribution> getAllSamplesSnapshotAndReset();
 }

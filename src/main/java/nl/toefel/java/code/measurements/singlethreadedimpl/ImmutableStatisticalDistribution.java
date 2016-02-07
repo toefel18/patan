@@ -14,18 +14,18 @@
  *    limitations under the License.
  */
 
-package nl.toefel.java.code.measurements.api;
+package nl.toefel.java.code.measurements.singlethreadedimpl;
+
+import nl.toefel.java.code.measurements.api.StatisticalDistribution;
 
 /**
- * Immutable structure describing a distribution, making it threadsafe.
+ * Immutable structure describing a statistical distribution, making it threadsafe.
  * <p>
- * The name of the statistic is not stored in this object itself because it's always mapped by a name through the API
- * (users store by name, find by name and the {@link Snapshot} contains a map by name), storing the name therefore feels
- * redundant. Equals and hashcode are not overridden because default behaviour makes more sense in this case.
+ * Equals and hashcode are not overridden because default behaviour makes more sense in this case.
  */
-public final class Statistic {
+public final class ImmutableStatisticalDistribution implements StatisticalDistribution {
 
-	private static final Statistic EMPTY_STATISTIC = new Statistic();
+	private static final StatisticalDistribution EMPTY_STATISTICAL_DISTRIBUTION = new ImmutableStatisticalDistribution();
 
 	private final long sampleCount;
 	private final long minimum;
@@ -37,42 +37,44 @@ public final class Statistic {
 	/**
 	 * @return an empty statistic;
 	 */
-	public static Statistic createEmpty() {
-		return EMPTY_STATISTIC;
+	public static StatisticalDistribution createEmpty() {
+		return EMPTY_STATISTICAL_DISTRIBUTION;
 	}
 
 	/**
 	 * @param sampleValue
 	 * @return a statistic with one sample
 	 */
-	public static Statistic createWithSingleSample(long sampleValue) {
-		return EMPTY_STATISTIC.addSampleValue(sampleValue);
+	public static StatisticalDistribution createWithSingleSample(long sampleValue) {
+		return EMPTY_STATISTICAL_DISTRIBUTION.newWithExtraSample(sampleValue);
 	}
 
 	/**
-	 * Creates a new statistical record based on this record and the sample added to the distribution
+	 * Creates a new statistical distribution object based on this distribution and the extra
+	 * value that is being added.
 	 * <p>
 	 * Average, sampleVariance and sampleStdDeviation calculations are taken from
 	 * <a href="http://en.wikipedia.org/wiki/Standard_deviation">http://en.wikipedia.org/wiki/Standard_deviation</a>
 	 *
 	 * @param sampleValue the value to merge with this record
-	 * @return new, immutable, record
+	 * @return new, immutable, distribution
 	 */
-	public Statistic addSampleValue(long sampleValue) {
-		Statistic previous = this; // for readability
+	@Override
+	public StatisticalDistribution newWithExtraSample(long sampleValue) {
+		ImmutableStatisticalDistribution previous = this; // for readability
 		long updatedSampleCount = previous.sampleCount + 1;
 		long updatedMinimum = sampleValue < previous.minimum ? sampleValue : previous.minimum;
 		long updatedMaximum = sampleValue > previous.maximum ? sampleValue : previous.maximum;
 		double updatedSampleAverage = previous.sampleAverage + ((sampleValue - previous.sampleAverage) / updatedSampleCount);
 		double updatedSampleVariance = previous.sampleVariance + ((sampleValue - previous.sampleAverage) * (sampleValue - updatedSampleAverage));
 		double updatedSampleStdDeviation = Math.sqrt(updatedSampleVariance / (updatedSampleCount - 1));
-		return new Statistic(updatedSampleCount, updatedMinimum, updatedMaximum, updatedSampleAverage, updatedSampleVariance, updatedSampleStdDeviation);
+		return new ImmutableStatisticalDistribution(updatedSampleCount, updatedMinimum, updatedMaximum, updatedSampleAverage, updatedSampleVariance, updatedSampleStdDeviation);
 	}
 
 	/**
 	 * Private constructor to enforce immutability, use factory methods
 	 */
-	private Statistic() {
+	private ImmutableStatisticalDistribution() {
 		sampleCount = 0;
 		minimum = Long.MAX_VALUE;
 		maximum = Long.MIN_VALUE;
@@ -84,7 +86,7 @@ public final class Statistic {
 	/**
 	 * Private constructor to enforce immutability, use factory methods
 	 */
-	private Statistic(final long sampleCount, final long minimum, final long maximum, final double sampleAverage, final double sampleVariance, final double sampleStdDeviation) {
+	private ImmutableStatisticalDistribution(final long sampleCount, final long minimum, final long maximum, final double sampleAverage, final double sampleVariance, final double sampleStdDeviation) {
 		this.sampleCount = sampleCount;
 		this.minimum = minimum;
 		this.maximum = maximum;
@@ -93,57 +95,49 @@ public final class Statistic {
 		this.sampleStdDeviation = sampleStdDeviation;
 	}
 
-	/**
-	 * @return false if distribution does not contain samples
-	 */
+
+	@Override
 	public boolean isEmpty() {
 		return sampleCount <= 0;
 	}
 
-	/**
-	 * @return the number of recorded samples in the distribution
-	 */
+
+	@Override
 	public long getSampleCount() {
 		return sampleCount;
 	}
 
-	/**
-	 * @return the lowest value in the distribution
-	 */
+
+	@Override
 	public long getMinimum() {
 		return minimum;
 	}
 
-	/**
-	 * @return the highest value in the distribution
-	 */
+
+	@Override
 	public long getMaximum() {
 		return maximum;
 	}
 
-	/**
-	 * @return the average of all samples in the distribution
-	 */
-	public double getSampleAverage() {
+
+	@Override
+	public double getAverage() {
 		return sampleAverage;
 	}
 
-	/**
-	 * @return the variance of all samples in the distribution
-	 */
-	public double getSampleVariance() {
+
+	@Override
+	public double getVariance() {
 		return sampleVariance;
 	}
 
-	/**
-	 * @return the standard deviation of all samples in the distribution
-	 */
-	public double getSampleStdDeviation() {
+	@Override
+	public double getStdDeviation() {
 		return sampleStdDeviation;
 	}
 
 	public String toString() {
-		return "Statistic [" +
+		return "StatisticalDistribution [" +
 				"sampleCount=" + sampleCount +
 				", min=" + minimum +
 				", max=" + maximum +
