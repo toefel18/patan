@@ -21,6 +21,9 @@ package nl.toefel.java.code.measurements.concurrencytest;
 import java.util.concurrent.CountDownLatch;
 
 public abstract class ConcurrentTask implements Runnable {
+    public static final boolean WRITES_TO_STATISTICS = true;
+    public static final boolean READS_FROM_STATISTICS = false;
+
     private final CountDownLatch starter;
     private final CountDownLatch finisher;
 
@@ -29,11 +32,14 @@ public abstract class ConcurrentTask implements Runnable {
     private volatile int timesPosted;
     protected volatile boolean failed = false;
 
-    public ConcurrentTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+    private final boolean writesToStatistics;
+
+    public ConcurrentTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost, boolean taskWritesToStatistics) {
         this.starter = starter;
         this.finisher = finisher;
         this.eventName = eventName;
         this.timesToPost = timesToPost;
+        this.writesToStatistics = taskWritesToStatistics;
         if (timesToPost <= 0 || starter == null || finisher == null || eventName == null) {
             throw new IllegalArgumentException("provide valid arguments! somethings wrong");
         }
@@ -44,7 +50,7 @@ public abstract class ConcurrentTask implements Runnable {
         try {
             starter.await(); // wait for start signal
             for (int i = 0; i < timesToPost; i++) {
-                doPost(eventName);
+                doTask(eventName);
                 timesPosted++;
             }
             finisher.countDown(); //wait for end signal
@@ -53,13 +59,17 @@ public abstract class ConcurrentTask implements Runnable {
         }
     }
 
-    protected abstract void doPost(final String eventName);
+    protected abstract void doTask(final String eventName);
+
+    public final boolean isWriter() {
+        return writesToStatistics;
+    }
 
     public String getEventName() {
         return eventName;
     }
 
-    public int getEventsPosted() {
+    public int getEventsExecuted() {
         return timesPosted;
     }
 

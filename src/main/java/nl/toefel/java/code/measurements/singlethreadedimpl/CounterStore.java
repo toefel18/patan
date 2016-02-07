@@ -40,7 +40,7 @@ public class CounterStore implements OccurrenceStore {
 	}
 
 	@Override
-	public void addOccurrences(final String name, final int timesOccurred) {
+	public void addOccurrences(final String name, final long timesOccurred) {
 		counters.put(name, findOccurrence(name) + timesOccurred);
 	}
 

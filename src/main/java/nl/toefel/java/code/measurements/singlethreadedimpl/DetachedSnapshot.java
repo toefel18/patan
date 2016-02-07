@@ -66,4 +66,25 @@ public class DetachedSnapshot implements Snapshot {
 	public Map<String, StatisticalDistribution> getSamples() {
 		return samples;
 	}
+
+	@Override
+	public long findOccurrence(final String name) {
+		Long occurrenceCounter = occurrences.get(name);
+		return occurrenceCounter == null ? 0 : occurrenceCounter;
+	}
+
+	@Override
+	public StatisticalDistribution findDuration(final String name) {
+		return getOrEmpty(durations.get(name));
+	}
+
+	@Override
+	public StatisticalDistribution findSampleDistribution(final String name) {
+		return getOrEmpty(samples.get(name));
+
+	}
+
+	private StatisticalDistribution getOrEmpty(StatisticalDistribution distribution) {
+		return distribution == null ? ImmutableStatisticalDistribution.createEmpty() : distribution;
+	}
 }

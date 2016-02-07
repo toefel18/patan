@@ -93,7 +93,7 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public void addOccurrences(String eventName, int timesOccurred) {
+    public void addOccurrences(String eventName, long timesOccurred) {
         try {
             rwLock.writeLock().lock();
             statistics.addOccurrences(eventName, timesOccurred);
@@ -103,10 +103,10 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public StatisticalDistribution findStatistic(String eventName) {
+    public StatisticalDistribution findSampleDistribution(String eventName) {
         try {
             rwLock.readLock().lock();
-            return statistics.findStatistic(eventName);
+            return statistics.findSampleDistribution(eventName);
         } finally {
             rwLock.readLock().unlock();
         }

@@ -31,26 +31,37 @@ public class SynchronizedStatisticsConcurrencyTest extends ConcurrencyTestBase {
 
     @Test
     public void testConcurrencyOneThreadEach() {
-        runConcurrencyTest(1, 10000);
+        runConcurrencyTest(1, 50000);
     }
 
     @Test
     public void testConcurrencyTwoThreadEach() {
-        runConcurrencyTest(2, 10000);
+        runConcurrencyTest(2, 40000);
     }
 
     @Test
     public void testConcurrencyTenThreadsEach() {
-        runConcurrencyTest(10, 10000);
+        runConcurrencyTest(10, 30000);
     }
 
     @Test
     public void testConcurrencyHundredThreadsEach() {
-        runConcurrencyTest(100, 10000);
+        runConcurrencyTest(100, 20000);
     }
 
     @Test
     public void testConcurrencyFiveHundredThreadsEach() {
         runConcurrencyTest(500, 10000);
     }
+
+    @Test
+    public void testResetTenWritersTenResetters() {
+        runResetTest(10, 10, 100000, 25000);
+    }
+
+    @Test
+    public void testResetHundredWritersTenResetters() {
+        runResetTest(50, 10, 100000, 25000);
+    }
+
 }

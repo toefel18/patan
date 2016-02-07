@@ -31,6 +31,12 @@ public enum TaskFactory {
             return new OccurrenceTask(starter, finisher, eventName, timesToPost);
         }
     },
+    OCCURRENCES_TASK_FACTORY {
+        @Override
+        public OccurrencesTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+            return new OccurrencesTask(starter, finisher, eventName, timesToPost);
+        }
+    },
     DURATION_TASK_FACTORY {
         @Override
         public DurationTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
@@ -45,14 +51,50 @@ public enum TaskFactory {
     },
     GET_SNAPSHOT_TASK_FACTORY {
         @Override
-        public GetSnapshotTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
-            return new GetSnapshotTask(starter, finisher, eventName, timesToPost);
+        public GetSnapshotsTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+            return new GetSnapshotsTask(starter, finisher, eventName, timesToPost);
         }
     },
-    FIND_STATISTIC_TASK_FACTORY {
+    FIND_SAMPLE_DISTRIBUTION_TASK_FACTORY {
         @Override
-        public FindStatisticTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
-            return new FindStatisticTask(starter, finisher, eventName, timesToPost);
+        public FindSampleDistributionTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+            return new FindSampleDistributionTask(starter, finisher, eventName, timesToPost);
+        }
+    },
+    FIND_OCCURRENCE_TASK_FACTORY {
+        @Override
+        public FindOccurrenceTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+            return new FindOccurrenceTask(starter, finisher, eventName, timesToPost);
+        }
+    },
+    FIND_DURATION_TASK_FACTORY {
+        @Override
+        public FindDurationTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+            return new FindDurationTask(starter, finisher, eventName, timesToPost);
+        }
+    },
+    RESET_SNAPSHOT_TASK_FACTORY {
+        @Override
+        public ResetGetSnapshotTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+            return new ResetGetSnapshotTask(starter, finisher, eventName, timesToPost);
+        }
+    },
+    RESET_ALLOCCURRENCE_SNAPSHOT_TASK_FACTORY {
+        @Override
+        public ResetGetAllOccurrencesSnapshotTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+            return new ResetGetAllOccurrencesSnapshotTask(starter, finisher, eventName, timesToPost);
+        }
+    },
+    RESET_ALLDURATIONS_SNAPSHOT_TASK_FACTORY {
+        @Override
+        public ResetGetAllDurationsSnapshotTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+            return new ResetGetAllDurationsSnapshotTask(starter, finisher, eventName, timesToPost);
+        }
+    },
+    RESET_ALLSAMPLES_SNAPSHOT_TASK_FACTORY {
+        @Override
+        public ResetGetAllSamplesSnapshotTask create(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+            return new ResetGetAllSamplesSnapshotTask(starter, finisher, eventName, timesToPost);
         }
     };
 

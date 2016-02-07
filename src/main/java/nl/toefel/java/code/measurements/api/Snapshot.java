@@ -27,4 +27,22 @@ public interface Snapshot {
 	 * @return all the collected statistics by name (never null)
 	 */
 	Map<String, StatisticalDistribution> getSamples();
+
+	/**
+	 * @param name the name of the occurrence
+	 * @return the number of recorded occurrences, 0 if none
+	 */
+	long findOccurrence(String name);
+
+	/**
+	 * @param name the name of the duration
+	 * @return the duration distribution or an empty distribution if none
+	 */
+	StatisticalDistribution findDuration(String name);
+
+	/**
+	 * @param name the name of the sample distribution
+	 * @return the sample distribution or an empty distribution if none
+	 */
+	StatisticalDistribution findSampleDistribution(String name);
 }

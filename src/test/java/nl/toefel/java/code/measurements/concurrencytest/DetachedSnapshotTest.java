@@ -22,11 +22,11 @@ public class DetachedSnapshotTest {
 	@Before
 	public void setupMaps() {
 		samples = new TreeMap<String, StatisticalDistribution>();
-		samples.put("sample", ImmutableStatisticalDistribution.createEmpty());
+		samples.put("sample", ImmutableStatisticalDistribution.createEmpty().newWithExtraSample(1));
 		occurrences = new TreeMap<String, Long>();
 		occurrences.put("counter", 2L);
 		durations = new TreeMap<String, StatisticalDistribution>();
-		durations.put("duration", ImmutableStatisticalDistribution.createEmpty());
+		durations.put("duration", ImmutableStatisticalDistribution.createEmpty().newWithExtraSample(1));
 	}
 
 	@Test (expected = IllegalArgumentException.class)
@@ -62,5 +62,35 @@ public class DetachedSnapshotTest {
 	@Test
 	public void testGetDurations() {
 		assertThat(new DetachedSnapshot(samples, occurrences, durations).getDurations()).isEqualTo(durations);
+	}
+
+	@Test
+	public void testFindOccurrence() {
+		assertThat(new DetachedSnapshot(samples, occurrences, durations).findOccurrence("counter")).isEqualTo(2);
+	}
+
+	@Test
+	public void testFindOccurrenceNotExisting() {
+		assertThat(new DetachedSnapshot(samples, occurrences, durations).findOccurrence("nonexisting")).isEqualTo(0);
+	}
+
+	@Test
+	public void testFindDuration() {
+		assertThat(new DetachedSnapshot(samples, occurrences, durations).findDuration("duration").getSampleCount()).isEqualTo(1);
+	}
+
+	@Test
+	public void testFindDurationNotExisting() {
+		assertThat(new DetachedSnapshot(samples, occurrences, durations).findDuration("nonexisting").isEmpty()).isTrue();
+	}
+
+	@Test
+	public void testFindSampleDistribution() {
+		assertThat(new DetachedSnapshot(samples, occurrences, durations).findSampleDistribution("sample").getSampleCount()).isEqualTo(1);
+	}
+
+	@Test
+	public void testFindSampleDistributionNotExisting() {
+		assertThat(new DetachedSnapshot(samples, occurrences, durations).findSampleDistribution("nonexisting").isEmpty()).isTrue();
 	}
 }

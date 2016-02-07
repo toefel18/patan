@@ -65,11 +65,10 @@ public interface OccurrenceStore extends Resettable {
 
 	/**
 	 * Adds multiple occurrences for the given name to the store.
-	 *
 	 * @param name event name to store the occurrence under
 	 * @param timesOccurred times the event occurred.
 	 */
-	void addOccurrences(final String name, int timesOccurred);
+	void addOccurrences(final String name, long timesOccurred);
 
 	/**
 	 * Finds the current amount of times the event occurred. If the name has not been found, zero will be returned.

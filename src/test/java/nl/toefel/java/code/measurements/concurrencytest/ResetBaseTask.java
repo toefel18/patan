@@ -19,25 +19,20 @@
 package nl.toefel.java.code.measurements.concurrencytest;
 
 import nl.toefel.java.code.measurements.api.StatisticalDistribution;
+import nl.toefel.java.code.measurements.singlethreadedimpl.StatisticDistributionStore;
 
 import java.util.concurrent.CountDownLatch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class FindStatisticTask extends ConcurrentTask {
+abstract class ResetBaseTask extends ConcurrentTask {
 
-    public FindStatisticTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
-        super(starter, finisher, eventName, timesToPost);
-    }
+	protected long samples = 0;
+	protected long durations = 0;
+	protected long occurrences = 0;
 
-    @Override
-    protected void doPost(String eventName) {
-        try {
-            StatisticalDistribution statisticalDistribution = ConcurrencyTestBase.subject.findStatistic(eventName);
-            assertThat(statisticalDistribution).isNotNull();
-        } catch (Throwable t) {
-            failed = true;
-            System.out.println(t.getMessage());
-        }
-    }
+	public ResetBaseTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+		super(starter, finisher, eventName, timesToPost, WRITES_TO_STATISTICS);
+	}
+
 }

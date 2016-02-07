@@ -18,21 +18,25 @@
 
 package nl.toefel.java.code.measurements.concurrencytest;
 
-import nl.toefel.java.code.measurements.api.Stopwatch;
+import nl.toefel.java.code.measurements.api.StatisticalDistribution;
 
 import java.util.concurrent.CountDownLatch;
 
-class DurationTask extends ConcurrentTask {
+import static org.assertj.core.api.Assertions.assertThat;
 
-    private final Stopwatch sw;
+class FindOccurrenceTask extends ConcurrentTask {
 
-    public DurationTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
-        super(starter, finisher, eventName, timesToPost, WRITES_TO_STATISTICS);
-        sw = ConcurrencyTestBase.subject.startStopwatch();
+    public FindOccurrenceTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+        super(starter, finisher, eventName, timesToPost, READS_FROM_STATISTICS);
     }
 
     @Override
     protected void doTask(String eventName) {
-        ConcurrencyTestBase.subject.recordElapsedTime(eventName, sw);
+        try {
+            long timesOccurred = ConcurrencyTestBase.subject.findOccurrence(eventName);
+        } catch (Throwable t) {
+            failed = true;
+            System.out.println(t.getMessage());
+        }
     }
 }

@@ -48,7 +48,7 @@ public abstract class StatisticsApiTestBase {
 
 	@Test
 	public void testFindStatisticsNotNull() {
-		StatisticalDistribution empty = stats.findStatistic("test.empty");
+		StatisticalDistribution empty = stats.findSampleDistribution("test.empty");
 		assertThat(empty).isNotNull();
 		assertThat(empty.isEmpty()).isTrue();
 	}
@@ -112,7 +112,7 @@ public abstract class StatisticsApiTestBase {
 	@Test
 	public void testAddOccurrence_findStatistic() {
 		stats.addOccurrence("test.occurrence");
-		StatisticalDistribution counterStat = stats.findStatistic("test.occurrence");
+		StatisticalDistribution counterStat = stats.findSampleDistribution("test.occurrence");
 		assertThat(counterStat.isEmpty()).as("occurences are queried through findOccurence").isTrue();
 	}
 
@@ -157,7 +157,7 @@ public abstract class StatisticsApiTestBase {
 	@Test
 	public void testAddSample() {
 		stats.addSample("test.sample", 5);
-		StatisticalDistribution stat = stats.findStatistic("test.sample");
+		StatisticalDistribution stat = stats.findSampleDistribution("test.sample");
 		assertRecordHasExactParameters(stat, 1, 5, 5, 5, 0, Double.NaN);
 	}
 
@@ -166,7 +166,7 @@ public abstract class StatisticsApiTestBase {
 		stats.addSample("test.sample", 5);
 		stats.addSample("test.sample", 10);
 		stats.addSample("test.sample", 15);
-		StatisticalDistribution stat = stats.findStatistic("test.sample");
+		StatisticalDistribution stat = stats.findSampleDistribution("test.sample");
 
 		assertThat(stat.getSampleCount()).as("sampleCount").isEqualTo(3);
 		assertThat(stat.getMinimum()).as("minimum").isEqualTo(5);
@@ -206,7 +206,7 @@ public abstract class StatisticsApiTestBase {
 		stats.addOccurrence("test.samename");
 		stats.recordElapsedTime("test.test", stats.startStopwatch());
 
-		assertRecordHasExactParameters(stats.findStatistic("test.samename"), 1, 5, 5, 5, 0, Double.NaN);
+		assertRecordHasExactParameters(stats.findSampleDistribution("test.samename"), 1, 5, 5, 5, 0, Double.NaN);
 		assertThat(stats.findOccurrence("test.samename")).isEqualTo(1);
 		assertRecordHasParametersWithin(stats.findDuration("test.test"), 1, 0, 0, 0, 10);
 	}

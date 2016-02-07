@@ -20,21 +20,19 @@ package nl.toefel.java.code.measurements.concurrencytest;
 
 import java.util.concurrent.CountDownLatch;
 
-import static org.assertj.core.api.Assertions.assertThat;
+/**
+ * Posts two occurrences per task
+ */
+class OccurrencesTask extends ConcurrentTask {
 
-class GetSnapshotTask extends ConcurrentTask {
+    public static final int OCCURRENCES_PER_RUN = 2;
 
-    public GetSnapshotTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
-        super(starter, finisher, eventName, timesToPost);
+    public OccurrencesTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+        super(starter, finisher, eventName, timesToPost, WRITES_TO_STATISTICS);
     }
 
     @Override
-    protected void doPost(String eventName) {
-        try {
-            assertThat(ConcurrencyTestBase.subject.getSnapshot()).isNotNull();
-        } catch (Throwable t) {
-            failed = true;
-            System.out.println(t.getMessage());
-        }
+    protected void doTask(String eventName) {
+        ConcurrencyTestBase.subject.addOccurrences(eventName, OCCURRENCES_PER_RUN);
     }
 }

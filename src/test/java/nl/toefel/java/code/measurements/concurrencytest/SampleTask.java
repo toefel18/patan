@@ -23,11 +23,11 @@ import java.util.concurrent.CountDownLatch;
 class SampleTask extends ConcurrentTask {
 
     public SampleTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
-        super(starter, finisher, eventName, timesToPost);
+        super(starter, finisher, eventName, timesToPost, WRITES_TO_STATISTICS);
     }
 
     @Override
-    protected void doPost(String eventName) {
-        ConcurrencyTestBase.subject.addSample(eventName, 1 + getEventsPosted());
+    protected void doTask(String eventName) {
+        ConcurrencyTestBase.subject.addSample(eventName, 1 + getEventsExecuted());
     }
 }

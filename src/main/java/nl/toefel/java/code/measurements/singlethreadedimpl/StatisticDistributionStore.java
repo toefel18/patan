@@ -25,22 +25,22 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class StatisticRecordStore implements SampleStore {
+public class StatisticDistributionStore implements SampleStore {
 
-	private Map<String, StatisticalDistribution> recordsByName = new ConcurrentHashMap<String, StatisticalDistribution>();
+	private Map<String, StatisticalDistribution> distributionsByName = new ConcurrentHashMap<String, StatisticalDistribution>();
 
 	@Override
-	public void addSample(String eventName, long value) {
-		if (recordsByName.containsKey(eventName)) {
-			recordsByName.put(eventName, recordsByName.get(eventName).newWithExtraSample(value));
+	public void addSample(String name, long value) {
+		if (distributionsByName.containsKey(name)) {
+			distributionsByName.put(name, distributionsByName.get(name).newWithExtraSample(value));
 		} else {
-			recordsByName.put(eventName, ImmutableStatisticalDistribution.createWithSingleSample(value));
+			distributionsByName.put(name, ImmutableStatisticalDistribution.createWithSingleSample(value));
 		}
 	}
 
 	@Override
-	public StatisticalDistribution findStatistic(final String eventName) {
-		StatisticalDistribution statisticalDistribution = recordsByName.get(eventName);
+	public StatisticalDistribution findSampleDistribution(final String name) {
+		StatisticalDistribution statisticalDistribution = distributionsByName.get(name);
 		if (statisticalDistribution == null) {
 			return ImmutableStatisticalDistribution.createEmpty();
 		} else {
@@ -51,8 +51,8 @@ public class StatisticRecordStore implements SampleStore {
 	@Override
 	public SortedMap<String, StatisticalDistribution> getAllSamplesSnapshot() {
 		SortedMap<String, StatisticalDistribution> snapshot = new TreeMap<String, StatisticalDistribution>();
-		for (String name: recordsByName.keySet()) {
-			snapshot.put(name, recordsByName.get(name));
+		for (String name: distributionsByName.keySet()) {
+			snapshot.put(name, distributionsByName.get(name));
 		}
 		return snapshot;
 	}
@@ -67,6 +67,6 @@ public class StatisticRecordStore implements SampleStore {
 
 	@Override
 	public void reset() {
-		recordsByName = new HashMap<String, StatisticalDistribution>();
+		distributionsByName = new HashMap<String, StatisticalDistribution>();
 	}
 }

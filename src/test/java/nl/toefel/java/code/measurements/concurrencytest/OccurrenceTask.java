@@ -23,11 +23,11 @@ import java.util.concurrent.CountDownLatch;
 class OccurrenceTask extends ConcurrentTask {
 
     public OccurrenceTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
-        super(starter, finisher, eventName, timesToPost);
+        super(starter, finisher, eventName, timesToPost, WRITES_TO_STATISTICS);
     }
 
     @Override
-    protected void doPost(String eventName) {
+    protected void doTask(String eventName) {
         ConcurrencyTestBase.subject.addOccurrence(eventName);
     }
 }

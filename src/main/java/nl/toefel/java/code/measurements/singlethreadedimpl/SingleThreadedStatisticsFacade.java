@@ -28,9 +28,9 @@ import java.util.Map;
  */
 public class SingleThreadedStatisticsFacade implements Statistics {
 
-	private final StatisticRecordStore sampleStore = new StatisticRecordStore();
+	private final StatisticDistributionStore sampleStore = new StatisticDistributionStore();
 
-	private final StatisticRecordStore durationStore = new StatisticRecordStore();
+	private final StatisticDistributionStore durationStore = new StatisticDistributionStore();
 
 	private final CounterStore counterStore = new CounterStore();
 
@@ -46,7 +46,7 @@ public class SingleThreadedStatisticsFacade implements Statistics {
 
 	@Override
 	public StatisticalDistribution findDuration(final String name) {
-		return durationStore.findStatistic(name);
+		return durationStore.findSampleDistribution(name);
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class SingleThreadedStatisticsFacade implements Statistics {
 	}
 
 	@Override
-	public void addOccurrences(final String eventName, final int timesOccurred) {
+	public void addOccurrences(final String eventName, final long timesOccurred) {
 		counterStore.addOccurrences(eventName, timesOccurred);
 	}
 
@@ -75,8 +75,8 @@ public class SingleThreadedStatisticsFacade implements Statistics {
 	}
 
 	@Override
-	public StatisticalDistribution findStatistic(final String eventName) {
-		return sampleStore.findStatistic(eventName);
+	public StatisticalDistribution findSampleDistribution(final String eventName) {
+		return sampleStore.findSampleDistribution(eventName);
 	}
 
 	@Override

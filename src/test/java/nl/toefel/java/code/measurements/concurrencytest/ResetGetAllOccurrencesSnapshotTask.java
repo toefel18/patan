@@ -18,21 +18,28 @@
 
 package nl.toefel.java.code.measurements.concurrencytest;
 
-import nl.toefel.java.code.measurements.api.Stopwatch;
+import nl.toefel.java.code.measurements.api.StatisticalDistribution;
 
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-class DurationTask extends ConcurrentTask {
+import static org.assertj.core.api.Assertions.assertThat;
 
-    private final Stopwatch sw;
+class ResetGetAllOccurrencesSnapshotTask extends ResetBaseTask {
 
-    public DurationTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
-        super(starter, finisher, eventName, timesToPost, WRITES_TO_STATISTICS);
-        sw = ConcurrencyTestBase.subject.startStopwatch();
+    public ResetGetAllOccurrencesSnapshotTask(CountDownLatch starter, CountDownLatch finisher, String eventName, int timesToPost) {
+        super(starter, finisher, eventName, timesToPost);
     }
 
     @Override
     protected void doTask(String eventName) {
-        ConcurrencyTestBase.subject.recordElapsedTime(eventName, sw);
+        try {
+            Map<String, Long> snapshot = ConcurrencyTestBase.subject.getAllOccurrencesSnapshotAndReset();
+            assertThat(snapshot).isNotNull();
+            occurrences += ConcurrencyTestBase.occurrenceCountOrZero(snapshot.get(ConcurrencyTestBase.OCCURRENCE_NAME));
+        } catch (Throwable t) {
+            failed = true;
+            System.out.println(t.getMessage());
+        }
     }
 }

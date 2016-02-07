@@ -39,7 +39,7 @@ public interface SampleStore extends Resettable {
 	 * @param name the name of the event to lookup
 	 * @return a copy of the internal statistic, never null
 	 */
-	StatisticalDistribution findStatistic(String name);
+	StatisticalDistribution findSampleDistribution(String name);
 
 	/**
 	 * @return the snapshot of all stored samples
