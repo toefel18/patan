@@ -57,16 +57,18 @@ import java.util.Map;
 public interface OccurrenceStore extends Resettable {
 
 	/**
-	 * Adds a single occurrence for the given name to the store.
+	 * Adds a single occurrence for the given name to the store. The first call will initialize the counter to 1 for the
+	 * given name.
 	 *
 	 * @param name event name to store the occurrence under
 	 */
 	void addOccurrence(final String name);
 
 	/**
-	 * Adds multiple occurrences for the given name to the store.
+	 * Adds multiple occurrences for the given name to the store. If no such occurrence counter exists, it is created.
+	 *
 	 * @param name event name to store the occurrence under
-	 * @param timesOccurred times the event occurred.
+	 * @param timesOccurred times the event occurred. can be negative but it is strongly discouraged.
 	 */
 	void addOccurrences(final String name, long timesOccurred);
 

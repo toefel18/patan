@@ -24,7 +24,8 @@ import java.util.Map;
 public interface SampleStore extends Resettable {
 
 	/**
-	 * Adds a sample for the variable with the name 'name'.
+	 * Adds a sample to the statistical distribution identified by the given name. The statistical distribution is created
+	 * if it does not exist yet for the given name.
 	 *
 	 * @param name the name of the sample
 	 * @param value current value to record into the distribution
@@ -32,9 +33,8 @@ public interface SampleStore extends Resettable {
 	void addSample(String name, long value);
 
 	/**
-	 * Finds the current statistical value for the event with the given name. If the name has not been found,
-	 * a empty statistic will be returned, use the {@link StatisticalDistribution#isEmpty()} method to check if a statistic with values
-	 * was returned.
+	 * Finds the statistical distribution by name. If the name has not been found, a empty statistic will be returned,
+	 * use the {@link StatisticalDistribution#isEmpty()} method to check for emptiness.
 	 *
 	 * @param name the name of the event to lookup
 	 * @return a copy of the internal statistic, never null
@@ -42,14 +42,14 @@ public interface SampleStore extends Resettable {
 	StatisticalDistribution findSampleDistribution(String name);
 
 	/**
-	 * @return the snapshot of all stored samples
+	 * @return the snapshot of all stored samples. The snapshot can be modified and is detached from the implementation.
 	 */
 	Map<String, StatisticalDistribution> getAllSamplesSnapshot();
 
 	/**
 	 * Retrieves the current collected statistics and returns them. All the current statistics are cleared.
 	 *
-	 * @return a snapshot of all samples
+	 * @return a snapshot of all samples. The snapshot can be modified and is detached from the implementation.
 	 */
 	Map<String, StatisticalDistribution> getAllSamplesSnapshotAndReset();
 }

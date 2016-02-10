@@ -29,12 +29,6 @@ public class SingleThreadedStatisticsConcurrencyTest extends ConcurrencyTestBase
         return StatisticsFactory.createSingleThreadedStatistics();
     }
 
-    @Test
-    public void testConcurrencyOneThreadEach() {
-        // TODO this creates one thread for each task, so you would expect this to fail
-        runConcurrencyTest(1, 10000);
-    }
-
     @Test (expected = AssertionError.class)
     public void testConcurrencyTenThreadsEach() {
         runConcurrencyTest(10, 10000);

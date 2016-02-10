@@ -43,10 +43,10 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public void recordElapsedTime(String eventName, Stopwatch stopwatch) {
+    public long recordElapsedTime(String eventName, Stopwatch stopwatch) {
         try {
             rwLock.writeLock().lock();
-            statistics.recordElapsedTime(eventName, stopwatch);
+            return statistics.recordElapsedTime(eventName, stopwatch);
         } finally {
             rwLock.writeLock().unlock();
         }

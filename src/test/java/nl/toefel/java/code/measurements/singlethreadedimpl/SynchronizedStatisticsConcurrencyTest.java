@@ -60,7 +60,7 @@ public class SynchronizedStatisticsConcurrencyTest extends ConcurrencyTestBase {
     }
 
     @Test
-    public void testResetHundredWritersTenResetters() {
+    public void testResetFiftyWritersTenResetters() {
         runResetTest(50, 10, 100000, 25000);
     }
 

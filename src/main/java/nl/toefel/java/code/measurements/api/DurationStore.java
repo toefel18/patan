@@ -32,17 +32,18 @@ public interface DurationStore extends Resettable {
 	Stopwatch startStopwatch();
 
 	/**
-	 * Records the elapsed time in nano-seconds.
+	 * Records the elapsed time and merges the result into the statistical distribution that is identified by the given name.
+	 * If no statistical distribution exists with the given name, it is created. The value that is read from the stopwatch is returned.
 	 *
 	 * @param name name to store the elapsed time under
 	 * @param stopwatch the {@link Stopwatch} that measures the elapsed time
+	 * @return the recorded elapsed millis
 	 */
-	void recordElapsedTime(String name, Stopwatch stopwatch);
+	long recordElapsedTime(String name, Stopwatch stopwatch);
 
 	/**
-	 * Finds the current statistical value for the recored duration with the given name. If the name has not been found,
-	 * a empty statistic will be returned, use the {@link StatisticalDistribution#isEmpty()} method to check if a statistic with values
-	 * was returned.
+	 * Finds the current statistical distribution for the recorded durations under the given name. If the name has not been found,
+	 * a empty distribution will be returned, use the {@link StatisticalDistribution#isEmpty()} method to check for emptiness.
 	 *
 	 * @param name the name of the event to lookup
 	 * @return a copy of the internal statistic, never null
@@ -52,14 +53,14 @@ public interface DurationStore extends Resettable {
 	/**
 	 * Returns a snapshot of all the recorded durations
 	 *
-	 * @return a copy of the internal state that is detached from the implementation
+	 * @return a snapshot of all recorded durations. The snapshot can be modified and is detached from the implementation.
 	 */
 	Map<String, StatisticalDistribution> getAllDurationsSnapshot();
 
 	/**
 	 * Returns a snapshot of all the recorded durations and clears the internal state
 	 *
-	 * @return a copy of the internal state that is detached from the implementation
+	 * @return a snapshot of all recorded durations. The snapshot can be modified and is detached from the implementation.
 	 */
 	Map<String, StatisticalDistribution> getAllDurationsSnapshotAndReset();
 }

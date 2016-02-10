@@ -78,10 +78,14 @@ public abstract class StatisticsApiTestBase {
 		Stopwatch stopwatch = stats.startStopwatch();
 
 		expensiveMethodTakingMillis(100);
-		stats.recordElapsedTime("test.duration", stopwatch);
+		long elapsed = stats.recordElapsedTime("test.duration", stopwatch);
 
 		StatisticalDistribution record = stats.findDuration("test.duration");
 
+		assertThat(elapsed)
+				.isEqualTo(record.getMinimum())
+				.isEqualTo(record.getMaximum());
+		assertThat(record.getAverage()).isCloseTo(elapsed, within(0.001));
 		assertRecordHasParametersWithin(record, 1, 100, 100, 100, 20);
 		assertThat(record.getVariance()).as("variance").isCloseTo(0.0d, within(0.0d));
 		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);

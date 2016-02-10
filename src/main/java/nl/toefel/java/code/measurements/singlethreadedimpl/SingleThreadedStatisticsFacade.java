@@ -40,8 +40,10 @@ public class SingleThreadedStatisticsFacade implements Statistics {
 	}
 
 	@Override
-	public void recordElapsedTime(final String eventName, final Stopwatch stopwatch) {
-		durationStore.addSample(eventName, stopwatch.elapsedMillis());
+	public long recordElapsedTime(final String eventName, final Stopwatch stopwatch) {
+		long elapsedMillis = stopwatch.elapsedMillis();
+		durationStore.addSample(eventName, elapsedMillis);
+		return elapsedMillis;
 	}
 
 	@Override
