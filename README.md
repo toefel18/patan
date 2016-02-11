@@ -36,7 +36,7 @@ Some examples:
 
     long elapsedTime = STATISTICS.recordElapsedTime("jms.message.received.duration", onMessageStopwatch);
         
-    // use elapsedTime is the value read from the onMessageStopwatch.
+    // elapsedTime is the value read from the onMessageStopwatch.
  }
 
  // samples
