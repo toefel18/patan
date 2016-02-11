@@ -34,7 +34,9 @@ Some examples:
     //expensive method that takes long
     processMessage(message);
 
-    STATISTICS.recordElapsedTime("jms.message.received.duration", onMessageStopwatch);    
+    long elapsedTime = STATISTICS.recordElapsedTime("jms.message.received.duration", onMessageStopwatch);
+        
+    // use elapsedTime is the value read from the onMessageStopwatch.
  }
 
  // samples
