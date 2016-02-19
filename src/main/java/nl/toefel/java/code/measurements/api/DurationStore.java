@@ -35,20 +35,20 @@ public interface DurationStore extends Resettable {
 	 * Records the elapsed time and merges the result into the statistical distribution that is identified by the given name.
 	 * If no statistical distribution exists with the given name, it is created. The value that is read from the stopwatch is returned.
 	 *
-	 * @param name name to store the elapsed time under
+	 * @param eventName name to store the elapsed time under
 	 * @param stopwatch the {@link Stopwatch} that measures the elapsed time
 	 * @return the recorded elapsed millis
 	 */
-	long recordElapsedTime(String name, Stopwatch stopwatch);
+	long recordElapsedTime(String eventName, Stopwatch stopwatch);
 
 	/**
 	 * Finds the current statistical distribution for the recorded durations under the given name. If the name has not been found,
 	 * a empty distribution will be returned, use the {@link StatisticalDistribution#isEmpty()} method to check for emptiness.
 	 *
-	 * @param name the name of the event to lookup
+	 * @param eventName the name of the event to lookup
 	 * @return a copy of the internal statistic, never null
 	 */
-	StatisticalDistribution findDuration(String name);
+	StatisticalDistribution findDuration(String eventName);
 
 	/**
 	 * Returns a snapshot of all the recorded durations
@@ -63,4 +63,57 @@ public interface DurationStore extends Resettable {
 	 * @return a snapshot of all recorded durations. The snapshot can be modified and is detached from the implementation.
 	 */
 	Map<String, StatisticalDistribution> getAllDurationsSnapshotAndReset();
+
+	/**
+	 * Runs the operation wrapped in a timedTask and records it's execution duration when finished under the given eventName,
+	 * the postfix of '.ok' or '.failure' separates their measurements.
+	 *
+	 * Java 8 API Extension. This allows for short readable code.
+	 *
+	 * return recordElapsedTime("someMethod", someMethod);
+	 *
+	 * which is equivalent to: <code>
+	 *      Stopwatch stopwatch = startStopwatch();
+	 *      try{
+	 *               T val = someMethod();
+	 *               recordElapsedTime("someMethod.ok", stopwatch);
+	 *               return val;
+	 *      }catch(Exception e){
+	 *               recordElapsedTime("someMethod.failed", stopwatch);
+	 *               throw e;
+	 *      }
+	 *
+	 * </code>
+	 *
+	 * @see DurationStore#recordElapsedTime(String, Runnable) for void lambda
+	 *
+	 * @param eventName
+	 * @param task
+	 */
+	<T> T recordElapsedTime(String eventName, TimedTask<T> task);
+
+	/**
+	 * Runs the operation wrapped in a timedTask and records it's execution duration when finished under the given eventName,
+	 * the postfix of '.ok' or '.failure' separates their measurements.
+	 *
+	 * recordElapsedTime("someMethod", someMethod);
+	 *
+	 * which is equivalent to: <code>
+	 *      Stopwatch stopwatch = startStopwatch();
+	 *      try{
+	 *               someMethod();
+	 *               recordElapsedTime("someMethod.ok", stopwatch);
+	 *      }catch(Exception e){
+	 *               recordElapsedTime("someMethod.failed", stopwatch);
+	 *               throw e;
+	 *      }
+	 *
+	 * </code>
+	 *
+	 * @see DurationStore#recordElapsedTime(String, TimedTask) for Lambda with return
+	 *
+	 * @param eventName
+	 * @param runnable
+	 */
+	void recordElapsedTime(String eventName, Runnable runnable);
 }

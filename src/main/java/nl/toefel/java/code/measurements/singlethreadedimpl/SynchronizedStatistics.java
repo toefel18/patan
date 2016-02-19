@@ -22,6 +22,7 @@ import nl.toefel.java.code.measurements.api.Snapshot;
 import nl.toefel.java.code.measurements.api.StatisticalDistribution;
 import nl.toefel.java.code.measurements.api.Statistics;
 import nl.toefel.java.code.measurements.api.Stopwatch;
+import nl.toefel.java.code.measurements.api.TimedTask;
 
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -41,6 +42,33 @@ public class SynchronizedStatistics implements Statistics {
         // does not need locking because stopwatch creation does not read or write the store
         return statistics.startStopwatch();
     }
+
+    @Override
+	public void recordElapsedTime(final String eventName, final Runnable runnable) {
+    	// don't hold lock while running, it might block long and is not needed
+		Stopwatch stopwatch = startStopwatch();
+		try {
+			runnable.run();
+			recordElapsedTime(eventName + ".ok", stopwatch);
+		} catch (RuntimeException e) {
+			recordElapsedTime(eventName + ".failed", stopwatch);
+			throw e;
+		}
+	}
+	@Override
+	public <T> T recordElapsedTime(final String eventName, final TimedTask<T> runnable) {
+    	// don't hold lock while running, it might block long and is not needed
+		Stopwatch stopwatch = startStopwatch();
+		try {
+			T val = runnable.get();
+			recordElapsedTime(eventName + ".ok", stopwatch);
+			return val;
+		} catch (RuntimeException e) {
+			recordElapsedTime(eventName + ".failed", stopwatch);
+			throw e;
+		}
+	}
+
 
     @Override
     public long recordElapsedTime(String eventName, Stopwatch stopwatch) {
