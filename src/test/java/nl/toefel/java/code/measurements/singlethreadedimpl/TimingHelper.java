@@ -18,11 +18,21 @@ package nl.toefel.java.code.measurements.singlethreadedimpl;
 
 public class TimingHelper {
 
-	public static void expensiveMethodTakingMillis(int millis) {
-		try {
-			Thread.sleep(millis);
-		} catch (InterruptedException e) {
-			throw new IllegalStateException(e);
-		}
-	}
+    public static String expensiveMethodTakingMillis(final int millis) {
+        try {
+            Thread.sleep(millis);
+            return "hi";
+        } catch (InterruptedException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public static String expensiveMethodTakingMillisException(final int millis) {
+        try {
+            Thread.sleep(millis);
+            throw new IllegalArgumentException();
+        } catch (InterruptedException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 }

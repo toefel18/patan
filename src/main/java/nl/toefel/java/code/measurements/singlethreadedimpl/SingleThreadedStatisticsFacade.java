@@ -16,111 +16,131 @@
 
 package nl.toefel.java.code.measurements.singlethreadedimpl;
 
+import java.util.Map;
+
 import nl.toefel.java.code.measurements.api.Snapshot;
 import nl.toefel.java.code.measurements.api.StatisticalDistribution;
 import nl.toefel.java.code.measurements.api.Statistics;
 import nl.toefel.java.code.measurements.api.Stopwatch;
-
-import java.util.Map;
+import nl.toefel.java.code.measurements.api.TimedTask;
 
 /**
  * Statistics implementation suitable for single-threaded applications.
  */
 public class SingleThreadedStatisticsFacade implements Statistics {
 
-	private final StatisticDistributionStore sampleStore = new StatisticDistributionStore();
+    private final StatisticDistributionStore sampleStore = new StatisticDistributionStore();
 
-	private final StatisticDistributionStore durationStore = new StatisticDistributionStore();
+    private final StatisticDistributionStore durationStore = new StatisticDistributionStore();
 
-	private final CounterStore counterStore = new CounterStore();
+    private final CounterStore counterStore = new CounterStore();
 
-	@Override
-	public Stopwatch startStopwatch() {
-		return ForeverRunningStopwatch.startNewStopwatch();
-	}
+    @Override
+    public Stopwatch startStopwatch() {
+        return ForeverRunningStopwatch.startNewStopwatch();
+    }
 
-	@Override
-	public long recordElapsedTime(final String eventName, final Stopwatch stopwatch) {
-		long elapsedMillis = stopwatch.elapsedMillis();
-		durationStore.addSample(eventName, elapsedMillis);
-		return elapsedMillis;
-	}
+    @Override
+    public <T> T recordElapsedTime(final String eventName, final TimedTask<T> runnable) {
+        Stopwatch stopwatch = startStopwatch();
+        T val = runnable.get();
+        recordElapsedTime(eventName, stopwatch);
+        return val;
+    }
 
-	@Override
-	public StatisticalDistribution findDuration(final String name) {
-		return durationStore.findSampleDistribution(name);
-	}
+    @Override
+    public <T> T recordElapsedTimeWithFailures(final String eventName, final TimedTask<T> runnable) {
+        Stopwatch stopwatch = startStopwatch();
+        try {
+            return runnable.get();
+        } catch (RuntimeException e) {
+            recordElapsedTime(eventName + ".failed", stopwatch);
+            throw e;
+        }
+    }
 
-	@Override
-	public Map<String, StatisticalDistribution> getAllDurationsSnapshot() {
-		return durationStore.getAllSamplesSnapshot();
-	}
+    @Override
+    public long recordElapsedTime(final String eventName, final Stopwatch stopwatch) {
+        long elapsedMillis = stopwatch.elapsedMillis();
+        durationStore.addSample(eventName, elapsedMillis);
+        return elapsedMillis;
+    }
 
-	@Override
-	public Map<String, StatisticalDistribution> getAllDurationsSnapshotAndReset() {
-		return durationStore.getAllSamplesSnapshotAndReset();
-	}
+    @Override
+    public StatisticalDistribution findDuration(final String name) {
+        return durationStore.findSampleDistribution(name);
+    }
 
-	@Override
-	public void addOccurrence(final String eventName) {
-		counterStore.addOccurrence(eventName);
-	}
+    @Override
+    public Map<String, StatisticalDistribution> getAllDurationsSnapshot() {
+        return durationStore.getAllSamplesSnapshot();
+    }
 
-	@Override
-	public void addOccurrences(final String eventName, final long timesOccurred) {
-		counterStore.addOccurrences(eventName, timesOccurred);
-	}
+    @Override
+    public Map<String, StatisticalDistribution> getAllDurationsSnapshotAndReset() {
+        return durationStore.getAllSamplesSnapshotAndReset();
+    }
 
-	@Override
-	public void addSample(final String eventName, final long value) {
-		sampleStore.addSample(eventName, value);
-	}
+    @Override
+    public void addOccurrence(final String eventName) {
+        counterStore.addOccurrence(eventName);
+    }
 
-	@Override
-	public StatisticalDistribution findSampleDistribution(final String eventName) {
-		return sampleStore.findSampleDistribution(eventName);
-	}
+    @Override
+    public void addOccurrences(final String eventName, final long timesOccurred) {
+        counterStore.addOccurrences(eventName, timesOccurred);
+    }
 
-	@Override
-	public Map<String, StatisticalDistribution> getAllSamplesSnapshot() {
-		return sampleStore.getAllSamplesSnapshot();
-	}
+    @Override
+    public void addSample(final String eventName, final long value) {
+        sampleStore.addSample(eventName, value);
+    }
 
-	@Override
-	public Map<String, StatisticalDistribution> getAllSamplesSnapshotAndReset() {
-		return sampleStore.getAllSamplesSnapshotAndReset();
-	}
+    @Override
+    public StatisticalDistribution findSampleDistribution(final String eventName) {
+        return sampleStore.findSampleDistribution(eventName);
+    }
 
-	@Override
-	public long findOccurrence(final String eventName) {
-		return counterStore.findOccurrence(eventName);
-	}
+    @Override
+    public Map<String, StatisticalDistribution> getAllSamplesSnapshot() {
+        return sampleStore.getAllSamplesSnapshot();
+    }
 
-	@Override
-	public Map<String, Long> getAllOccurrencesSnapshot() {
-		return counterStore.getAllOccurrencesSnapshot();
-	}
+    @Override
+    public Map<String, StatisticalDistribution> getAllSamplesSnapshotAndReset() {
+        return sampleStore.getAllSamplesSnapshotAndReset();
+    }
 
-	@Override
-	public Map<String, Long> getAllOccurrencesSnapshotAndReset() {
-		return counterStore.getAllOccurrencesSnapshotAndReset();
-	}
+    @Override
+    public long findOccurrence(final String eventName) {
+        return counterStore.findOccurrence(eventName);
+    }
 
-	@Override
-	public void reset() {
-		counterStore.reset();
-		durationStore.reset();
-		sampleStore.reset();
-	}
+    @Override
+    public Map<String, Long> getAllOccurrencesSnapshot() {
+        return counterStore.getAllOccurrencesSnapshot();
+    }
 
-	@Override
-	public Snapshot getSnapshot() {
-		return new DetachedSnapshot(getAllSamplesSnapshot(), getAllOccurrencesSnapshot(), getAllDurationsSnapshot());
-	}
+    @Override
+    public Map<String, Long> getAllOccurrencesSnapshotAndReset() {
+        return counterStore.getAllOccurrencesSnapshotAndReset();
+    }
 
-	@Override
-	public Snapshot getSnapshotAndReset() {
-		return new DetachedSnapshot(getAllSamplesSnapshotAndReset(), getAllOccurrencesSnapshotAndReset(), getAllDurationsSnapshotAndReset());
-	}
+    @Override
+    public void reset() {
+        counterStore.reset();
+        durationStore.reset();
+        sampleStore.reset();
+    }
+
+    @Override
+    public Snapshot getSnapshot() {
+        return new DetachedSnapshot(getAllSamplesSnapshot(), getAllOccurrencesSnapshot(), getAllDurationsSnapshot());
+    }
+
+    @Override
+    public Snapshot getSnapshotAndReset() {
+        return new DetachedSnapshot(getAllSamplesSnapshotAndReset(), getAllOccurrencesSnapshotAndReset(), getAllDurationsSnapshotAndReset());
+    }
 
 }

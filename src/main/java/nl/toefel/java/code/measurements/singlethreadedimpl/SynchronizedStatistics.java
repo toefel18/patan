@@ -18,21 +18,22 @@
 
 package nl.toefel.java.code.measurements.singlethreadedimpl;
 
+import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import nl.toefel.java.code.measurements.api.Snapshot;
 import nl.toefel.java.code.measurements.api.StatisticalDistribution;
 import nl.toefel.java.code.measurements.api.Statistics;
 import nl.toefel.java.code.measurements.api.Stopwatch;
-
-import java.util.Map;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import nl.toefel.java.code.measurements.api.TimedTask;
 
 public class SynchronizedStatistics implements Statistics {
     private final Statistics statistics;
 
     private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
-    public SynchronizedStatistics(Statistics statistics) {
+    public SynchronizedStatistics(final Statistics statistics) {
         this.statistics = statistics;
     }
 
@@ -43,7 +44,37 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public long recordElapsedTime(String eventName, Stopwatch stopwatch) {
+    public <T> T recordElapsedTime(final String eventName, final TimedTask<T> runnable) {
+        Stopwatch stopwatch = statistics.startStopwatch();
+        try {
+            rwLock.writeLock().lock();
+            T val = runnable.get();
+            statistics.recordElapsedTime(eventName, stopwatch);
+            return val;
+        } finally {
+            rwLock.writeLock().unlock();
+        }
+
+    }
+
+    @Override
+    public <T> T recordElapsedTimeWithFailures(final String eventName, final TimedTask<T> runnable) {
+        Stopwatch stopwatch = statistics.startStopwatch();
+        try {
+            rwLock.writeLock().lock();
+            T val = runnable.get();
+            statistics.recordElapsedTime(eventName, stopwatch);
+            return val;
+        } catch (RuntimeException e) {
+            statistics.recordElapsedTime(eventName + ".failed", stopwatch);
+            throw e;
+        } finally {
+            rwLock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public long recordElapsedTime(final String eventName, final Stopwatch stopwatch) {
         try {
             rwLock.writeLock().lock();
             return statistics.recordElapsedTime(eventName, stopwatch);
@@ -83,7 +114,7 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public void addOccurrence(String eventName) {
+    public void addOccurrence(final String eventName) {
         try {
             rwLock.writeLock().lock();
             statistics.addOccurrence(eventName);
@@ -93,7 +124,7 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public void addOccurrences(String eventName, long timesOccurred) {
+    public void addOccurrences(final String eventName, final long timesOccurred) {
         try {
             rwLock.writeLock().lock();
             statistics.addOccurrences(eventName, timesOccurred);
@@ -103,7 +134,7 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public StatisticalDistribution findSampleDistribution(String eventName) {
+    public StatisticalDistribution findSampleDistribution(final String eventName) {
         try {
             rwLock.readLock().lock();
             return statistics.findSampleDistribution(eventName);
@@ -133,7 +164,7 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public long findOccurrence(String eventName) {
+    public long findOccurrence(final String eventName) {
         try {
             rwLock.readLock().lock();
             return statistics.findOccurrence(eventName);
@@ -173,7 +204,7 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public void addSample(String eventName, long value) {
+    public void addSample(final String eventName, final long value) {
         try {
             rwLock.writeLock().lock();
             statistics.addSample(eventName, value);
@@ -201,4 +232,5 @@ public class SynchronizedStatistics implements Statistics {
             rwLock.writeLock().unlock();
         }
     }
+
 }
