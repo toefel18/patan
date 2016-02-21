@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class StatisticDistributionStore implements SampleStore {
 
-	private Map<String, StatisticalDistribution> distributionsByName = new ConcurrentHashMap<String, StatisticalDistribution>();
+	private SortedMap<String, StatisticalDistribution> distributionsByName = new TreeMap<String, StatisticalDistribution>();
 
 	@Override
 	public void addSample(String name, long value) {
@@ -50,16 +50,12 @@ public class StatisticDistributionStore implements SampleStore {
 
 	@Override
 	public SortedMap<String, StatisticalDistribution> getAllSamplesSnapshot() {
-		SortedMap<String, StatisticalDistribution> snapshot = new TreeMap<String, StatisticalDistribution>();
-		for (String name: distributionsByName.keySet()) {
-			snapshot.put(name, distributionsByName.get(name));
-		}
-		return snapshot;
+		return new TreeMap<String, StatisticalDistribution>(distributionsByName);
 	}
 
 	@Override
 	public SortedMap<String, StatisticalDistribution> getAllSamplesSnapshotAndReset() {
-		SortedMap<String, StatisticalDistribution> snapshot = getAllSamplesSnapshot();
+		SortedMap<String, StatisticalDistribution> snapshot = distributionsByName; // we can
 		reset();
 		return snapshot;
 	}
@@ -67,6 +63,6 @@ public class StatisticDistributionStore implements SampleStore {
 
 	@Override
 	public void reset() {
-		distributionsByName = new HashMap<String, StatisticalDistribution>();
+		distributionsByName = new TreeMap<String, StatisticalDistribution>();
 	}
 }

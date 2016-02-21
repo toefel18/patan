@@ -30,9 +30,7 @@ import java.util.TreeMap;
  */
 public class CounterStore implements OccurrenceStore {
 
-	private static final long ZERO = 0L;
-
-	private Map<String, Long> counters = new HashMap<String, Long>();
+	private SortedMap<String, Long> counters = new TreeMap<String, Long>();
 
 	@Override
 	public void addOccurrence(final String name) {
@@ -48,7 +46,7 @@ public class CounterStore implements OccurrenceStore {
 	public long findOccurrence(final String name) {
 		Long counter = counters.get(name);
 		if (counter == null) {
-			return ZERO;
+			return 0L;
 		} else {
 			return counter;
 		}
@@ -61,12 +59,13 @@ public class CounterStore implements OccurrenceStore {
 
 	@Override
 	public SortedMap<String, Long> getAllOccurrencesSnapshotAndReset() {
-		SortedMap<String, Long> snapshot = getAllOccurrencesSnapshot();
+		SortedMap<String, Long> snapshot = counters;
 		reset();
 		return snapshot;
 	}
 
+	@Override
 	public void reset() {
-		counters.clear();
+		counters = new TreeMap<String, Long>();
 	}
 }

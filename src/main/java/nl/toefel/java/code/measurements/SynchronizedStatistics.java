@@ -16,7 +16,7 @@
  *
  */
 
-package nl.toefel.java.code.measurements.singlethreadedimpl;
+package nl.toefel.java.code.measurements;
 
 import nl.toefel.java.code.measurements.api.Snapshot;
 import nl.toefel.java.code.measurements.api.StatisticalDistribution;
@@ -34,6 +34,9 @@ public class SynchronizedStatistics implements Statistics {
 
     public SynchronizedStatistics(Statistics statistics) {
         this.statistics = statistics;
+        if (this.statistics == null) {
+            throw new IllegalArgumentException("statistics cannot be null");
+        }
     }
 
     @Override
