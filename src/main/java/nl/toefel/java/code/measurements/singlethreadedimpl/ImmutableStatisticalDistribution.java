@@ -136,6 +136,7 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 		return sampleStdDeviation;
 	}
 
+	@Override
 	public String toString() {
 		return "StatisticalDistribution [" +
 				"sampleCount=" + sampleCount +

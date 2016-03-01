@@ -16,7 +16,7 @@
  *
  */
 
-package nl.toefel.java.code.measurements.singlethreadedimpl;
+package nl.toefel.java.code.measurements;
 
 import nl.toefel.java.code.measurements.StatisticsApiTestBase;
 import nl.toefel.java.code.measurements.StatisticsFactory;

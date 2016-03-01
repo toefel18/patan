@@ -20,7 +20,7 @@ public class DetachedSnapshot implements Snapshot {
 	 */
 	private final Map<String, Long> occurrences;
 	/**
-	 * name of samle => Statistical distribution of all sampled values
+	 * name of sample => Statistical distribution of all sampled values
 	 */
 	private final Map<String, StatisticalDistribution> samples;
 
@@ -43,24 +43,20 @@ public class DetachedSnapshot implements Snapshot {
 		}
 	}
 
-
 	@Override
 	public long getTimestampTaken() {
 		return timestampTaken;
 	}
-
 
 	@Override
 	public Map<String, StatisticalDistribution> getDurations() {
 		return durations;
 	}
 
-
 	@Override
 	public Map<String, Long> getOccurrences() {
 		return occurrences;
 	}
-
 
 	@Override
 	public Map<String, StatisticalDistribution> getSamples() {
