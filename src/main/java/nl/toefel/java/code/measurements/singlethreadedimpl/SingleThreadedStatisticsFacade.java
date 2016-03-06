@@ -20,6 +20,7 @@ import nl.toefel.java.code.measurements.api.Snapshot;
 import nl.toefel.java.code.measurements.api.StatisticalDistribution;
 import nl.toefel.java.code.measurements.api.Statistics;
 import nl.toefel.java.code.measurements.api.Stopwatch;
+import nl.toefel.java.code.measurements.api.TimedTask;
 
 import java.util.Map;
 
@@ -37,6 +38,31 @@ public class SingleThreadedStatisticsFacade implements Statistics {
 	@Override
 	public Stopwatch startStopwatch() {
 		return ForeverRunningStopwatch.startNewStopwatch();
+	}
+
+	@Override
+	public void recordElapsedTime(final String eventName, final Runnable runnable) {
+		Stopwatch stopwatch = startStopwatch();
+		try {
+			runnable.run();
+			recordElapsedTime(eventName + ".ok", stopwatch);
+		} catch (RuntimeException e) {
+			recordElapsedTime(eventName + ".failed", stopwatch);
+			throw e;
+		}
+	}
+
+	@Override
+	public <T> T recordElapsedTime(final String eventName, final TimedTask<T> runnable) {
+		Stopwatch stopwatch = startStopwatch();
+		try {
+			T val = runnable.get();
+			recordElapsedTime(eventName + ".ok", stopwatch);
+			return val;
+		} catch (RuntimeException e) {
+			recordElapsedTime(eventName + ".failed", stopwatch);
+			throw e;
+		}
 	}
 
 	@Override
