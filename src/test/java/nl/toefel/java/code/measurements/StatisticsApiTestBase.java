@@ -18,6 +18,7 @@
 
 package nl.toefel.java.code.measurements;
 
+import nl.toefel.java.code.measurements.api.TimedTask;
 import nl.toefel.java.code.measurements.api.Snapshot;
 import nl.toefel.java.code.measurements.api.StatisticalDistribution;
 import nl.toefel.java.code.measurements.api.Statistics;
@@ -28,10 +29,10 @@ import org.junit.Test;
 import java.util.Map;
 
 import static nl.toefel.java.code.measurements.singlethreadedimpl.AssertionHelper.*;
-import static nl.toefel.java.code.measurements.singlethreadedimpl.TimingHelper.expensiveMethodTakingMillis;
+import static nl.toefel.java.code.measurements.singlethreadedimpl.TimingHelper.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
-
+import static org.junit.Assert.fail;
 /**
  * Base class for tests that verify correctness of the API.
  */
@@ -89,6 +90,85 @@ public abstract class StatisticsApiTestBase {
 		assertRecordHasParametersWithin(record, 1, 100, 100, 100, 20);
 		assertThat(record.getVariance()).as("variance").isCloseTo(0.0d, within(0.0d));
 		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
+	}
+
+	@Test
+	public void testRecordElapsedRunnable() {
+		// = stats.recordElapsedTime("test.duration", () -> expensiveMethodTakingMillis(100));
+		long elapsedGuess = System.currentTimeMillis();
+		stats.recordElapsedTime("test.duration", new Runnable() {
+			@Override
+			public void run() {
+				expensiveMethodTakingMillis(100);
+			}
+		});
+		elapsedGuess = System.currentTimeMillis()-elapsedGuess;
+		StatisticalDistribution record = stats.findDuration("test.duration.ok");
+		assertThat(record.getMinimum()).isEqualTo(record.getMaximum());
+		assertThat(record.getAverage()).isCloseTo(elapsedGuess, within(0.001));
+		assertRecordHasParametersWithin(record, 1, elapsedGuess, elapsedGuess, elapsedGuess, 20);
+		assertThat(record.getVariance()).as("variance").isCloseTo(0.0d, within(0.0d));
+		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
+	}
+
+	@Test
+	public void testRecordElapsedRunnableException() {
+		long elapsedGuess = System.currentTimeMillis();
+		try {
+				stats.recordElapsedTime("test.duration", new Runnable() {
+				@Override
+				public void run() {
+					expensiveMethodTakingMillisException(100);
+				}
+			});
+			fail("should raise exception");
+		} catch (IllegalArgumentException e) {
+			elapsedGuess = System.currentTimeMillis()-elapsedGuess;
+			StatisticalDistribution record = stats.findDuration("test.duration.failed");
+			assertRecordHasParametersWithin(record, 1, elapsedGuess, elapsedGuess, elapsedGuess, 40);
+			assertThat(record.getVariance()).as("variance").isCloseTo(0.0d, within(0.0d));
+			assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
+		}
+	}
+
+
+	@Test
+	public void testRecordElapsedTimeTask() {
+		String retValue;// = stats.recordElapsedTime("test.duration", () ->
+						// expensiveMethodTakingMillis(100));
+		long elapsedGuess = System.currentTimeMillis();
+		retValue = stats.recordElapsedTime("test.duration", new TimedTask<String>() {
+			@Override
+			public String get() {
+				return expensiveMethodTakingMillis(100);
+			}
+		});
+		elapsedGuess = System.currentTimeMillis()-elapsedGuess;
+		assertThat(retValue).isEqualTo("hi");
+		StatisticalDistribution record = stats.findDuration("test.duration.ok");
+		assertRecordHasParametersWithin(record, 1, elapsedGuess, elapsedGuess, elapsedGuess, 40);
+		assertThat(record.getVariance()).as("variance").isCloseTo(0.0d, within(0.0d));
+		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
+	}
+
+	@Test
+	public void testRecordElapsedTimeTaskException() {
+		long elapsedGuess = System.currentTimeMillis();
+		try {
+				stats.recordElapsedTime("test.duration", new TimedTask<String>() {
+				@Override
+				public String get() {
+					return expensiveMethodTakingMillisException(100);
+				}
+			});
+			fail("should raise exception");
+		} catch (IllegalArgumentException e) {
+			elapsedGuess = System.currentTimeMillis()-elapsedGuess;
+			StatisticalDistribution record = stats.findDuration("test.duration.failed");
+			assertRecordHasParametersWithin(record, 1, elapsedGuess, elapsedGuess, elapsedGuess, 40);
+			assertThat(record.getVariance()).as("variance").isCloseTo(0.0d, within(0.0d));
+			assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
+		}
 	}
 
 	@Test
@@ -189,10 +269,10 @@ public abstract class StatisticsApiTestBase {
 		stats.recordElapsedTime("test.test", stopwatch); // approx 0ms
 		long millisStart = stopwatch.elapsedMillis();
 		expensiveMethodTakingMillis(100);
-		stats.recordElapsedTime("test.test", stopwatch); //approx 100ms
+		stats.recordElapsedTime("test.test", stopwatch); // approx 100ms
 		expensiveMethodTakingMillis(100);
 		long millisEnd = stopwatch.elapsedMillis();
-		stats.recordElapsedTime("test.test", stopwatch); //approx 200ms;
+		stats.recordElapsedTime("test.test", stopwatch); // approx 200ms;
 
 		StatisticalDistribution duration = stats.findDuration("test.test");
 
@@ -238,7 +318,6 @@ public abstract class StatisticsApiTestBase {
 		assertThat(snapshot.getTimestampTaken()).isCloseTo(System.currentTimeMillis(), within(100L));
 	}
 
-
 	@Test
 	public void testGetSnapshotAndReset() {
 		addCounterDurationAndSample("test.test");
@@ -254,7 +333,7 @@ public abstract class StatisticsApiTestBase {
 		assertEmpty(stats.getSnapshot());
 	}
 
-	private void addCounterDurationAndSample(String name) {
+	private void addCounterDurationAndSample(final String name) {
 		stats.addOccurrences(name, 1);
 		stats.addSample(name, 5);
 		stats.recordElapsedTime(name, stats.startStopwatch());

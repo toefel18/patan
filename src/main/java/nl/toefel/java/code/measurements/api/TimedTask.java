@@ -13,26 +13,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package nl.toefel.java.code.measurements.api;
 
-package nl.toefel.java.code.measurements.singlethreadedimpl;
-
-public class TimingHelper {
-
-	public static String expensiveMethodTakingMillis(final int millis) {
-		try {
-			Thread.sleep(millis);
-			return "hi";
-		} catch (InterruptedException e) {
-			throw new IllegalStateException(e);
-		}
-	}
-
-	public static String expensiveMethodTakingMillisException(final int millis) {
-		try {
-			Thread.sleep(millis);
-			throw new IllegalArgumentException();
-		} catch (InterruptedException e) {
-			throw new IllegalStateException(e);
-		}
-	}
+/**
+ * Useful to be able to measure Java8 style
+ *
+ * String retValue = stats.recordElapsedTime("test.duration", () -> expensiveMethodTakingMillis(100));
+ *
+ * @param <T>
+ */
+public interface TimedTask<T> {
+    // @FunctionalInterface
+    T get();
 }
