@@ -65,7 +65,7 @@ public interface DurationStore extends Resettable {
 	Map<String, StatisticalDistribution> getAllDurationsSnapshotAndReset();
 
 	/**
-	 * Runs the operation wrapped in a timedTask and records it's execution duration when finished under the given eventName,
+	 * Runs the operation wrapped in a {@link TimedTask} and records it's execution duration when finished under the given eventName,
 	 * the postfix of '.ok' or '.failure' separates their measurements.
 	 *
 	 * Java 8 API Extension. This allows for short readable code.
@@ -87,13 +87,15 @@ public interface DurationStore extends Resettable {
 	 *
 	 * @see DurationStore#recordElapsedTime(String, Runnable) for void lambda
 	 *
-	 * @param eventName
-	 * @param task
+	 * @param <T> the return type of the measured task
+	 * @param eventName name to store the elapsed time under
+	 * @param task the task to run
+	 * @return the result of {@link TimedTask#get()}
 	 */
 	<T> T recordElapsedTime(String eventName, TimedTask<T> task);
 
 	/**
-	 * Runs the operation wrapped in a timedTask and records it's execution duration when finished under the given eventName,
+	 * Runs the operation wrapped in a {@link Runnable} and records it's execution duration when finished under the given eventName,
 	 * the postfix of '.ok' or '.failure' separates their measurements.
 	 *
 	 * recordElapsedTime("someMethod", someMethod);
@@ -112,8 +114,8 @@ public interface DurationStore extends Resettable {
 	 *
 	 * @see DurationStore#recordElapsedTime(String, TimedTask) for Lambda with return
 	 *
-	 * @param eventName
-	 * @param runnable
+	 * @param eventName name to store the elapsed time under
+	 * @param runnable the runnable to run
 	 */
 	void recordElapsedTime(String eventName, Runnable runnable);
 }

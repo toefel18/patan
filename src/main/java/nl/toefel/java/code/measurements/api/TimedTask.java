@@ -18,9 +18,9 @@ package nl.toefel.java.code.measurements.api;
 /**
  * Useful to be able to measure Java8 style
  *
- * String retValue = stats.recordElapsedTime("test.duration", () -> expensiveMethodTakingMillis(100));
+ * String retValue = stats.recordElapsedTime("test.duration", () -&gt; expensiveMethodTakingMillis(100));
  *
- * @param <T>
+ * @param <T> the return type of the task
  */
 public interface TimedTask<T> {
     // @FunctionalInterface
