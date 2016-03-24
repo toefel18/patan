@@ -55,3 +55,22 @@ Some examples:
  }
 
 ```
+
+Java 8 users can measure the duration of a lambda:
+
+```java
+// measuring durations of methods without a return type
+public void onMessage(Message message) {
+    STATISTICS.recordElapsedTime("jms.message.received.duration", () -> processMessage(message));
+}
+
+// measuring durations of methods with a return type
+public Result convert(Message message) {
+    return STATISTICS.recordElapsedTime("jms.message.convertion.duration", () -> return convertMessageIntoResult(message));
+}
+
+public Result convertMessageIntoResult(Message message) {
+    return new Result(expensiveTransform(message));
+}
+
+```
