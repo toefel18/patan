@@ -44,7 +44,6 @@ public class ImmutableStatisticalDistributionTest {
 						s(a.getMinimum()),
 						s(a.getMaximum()),
 						s(a.getAverage()),
-						s(a.getVariance()),
 						s(a.getStdDeviation()));
 	}
 
@@ -52,4 +51,12 @@ public class ImmutableStatisticalDistributionTest {
 		return String.valueOf(nr);
 	}
 
+	@Test
+	public void qqqq() {
+		StatisticalDistribution dist = ImmutableStatisticalDistribution.createWithSingleSample(1);
+		for (int i = 1; i < 10; i++) {
+			dist.newWithExtraSample(i);
+		}
+		//qqqq assert min, max, avg, count, stdDev
+	}
 }

@@ -16,7 +16,7 @@ public interface StatisticalDistribution {
 	 * @param sampleValue the value to merge with this record
 	 * @return new statistical distribution.
 	 */
-	StatisticalDistribution newWithExtraSample(long sampleValue);
+	StatisticalDistribution newWithExtraSample(double sampleValue);
 
 	/**
 	 * @return false if distribution does not contain samples
@@ -31,12 +31,12 @@ public interface StatisticalDistribution {
 	/**
 	 * @return the lowest value in the distribution
 	 */
-	long getMinimum();
+	double getMinimum();
 
 	/**
 	 * @return the highest value in the distribution
 	 */
-	long getMaximum();
+	double getMaximum();
 
 	/**
 	 * @return the average of all samples in the distribution
@@ -44,9 +44,9 @@ public interface StatisticalDistribution {
 	double getAverage();
 
 	/**
-	 * @return the variance of all samples in the distribution
+	 * @return qqqq moet weg maar hoe voorkom je dat hij in JSON outputs komt wat private veld moet blijven
 	 */
-	double getVariance();
+	double getTotalVariance();
 
 	/**
 	 * @return the standard deviation of all samples in the distribution

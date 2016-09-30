@@ -28,11 +28,11 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 	private static final StatisticalDistribution EMPTY_STATISTICAL_DISTRIBUTION = new ImmutableStatisticalDistribution();
 
 	private final long sampleCount;
-	private final long minimum;
-	private final long maximum;
-	private final double sampleAverage;
-	private final double sampleVariance;
-	private final double sampleStdDeviation;
+	private final double minimum;
+	private final double maximum;
+	private final double average;
+	private final double totalVariance;
+	private final double stdDeviation;
 
 	/**
 	 * @return an empty statistic;
@@ -60,15 +60,15 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 	 * @return new, immutable, distribution
 	 */
 	@Override
-	public StatisticalDistribution newWithExtraSample(long sampleValue) {
+	public StatisticalDistribution newWithExtraSample(double sampleValue) { //qqqq use https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance Computing shifted data[edit]
 		ImmutableStatisticalDistribution previous = this; // for readability
-		long updatedSampleCount = previous.sampleCount + 1;
-		long updatedMinimum = sampleValue < previous.minimum ? sampleValue : previous.minimum;
-		long updatedMaximum = sampleValue > previous.maximum ? sampleValue : previous.maximum;
-		double updatedSampleAverage = previous.sampleAverage + ((sampleValue - previous.sampleAverage) / updatedSampleCount);
-		double updatedSampleVariance = previous.sampleVariance + ((sampleValue - previous.sampleAverage) * (sampleValue - updatedSampleAverage));
-		double updatedSampleStdDeviation = Math.sqrt(updatedSampleVariance / (updatedSampleCount - 1));
-		return new ImmutableStatisticalDistribution(updatedSampleCount, updatedMinimum, updatedMaximum, updatedSampleAverage, updatedSampleVariance, updatedSampleStdDeviation);
+		long updatedCount = previous.sampleCount + 1;
+		double updatedMinimum = sampleValue < previous.minimum ? sampleValue : previous.minimum;
+		double updatedMaximum = sampleValue > previous.maximum ? sampleValue : previous.maximum;
+		double updatedAverage = previous.average + ((sampleValue - previous.average) / updatedCount);
+		double updatedTotalVariance = previous.totalVariance + ((sampleValue - previous.average) * (sampleValue - updatedAverage));
+		double updatedStdDeviation = Math.sqrt(updatedTotalVariance / (updatedCount - 1));
+		return new ImmutableStatisticalDistribution(updatedCount, updatedMinimum, updatedMaximum, updatedAverage, updatedTotalVariance, updatedStdDeviation);
 	}
 
 	/**
@@ -76,23 +76,23 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 	 */
 	private ImmutableStatisticalDistribution() {
 		sampleCount = 0;
-		minimum = Long.MAX_VALUE;
-		maximum = Long.MIN_VALUE;
-		sampleAverage = 0.0d;
-		sampleVariance = 0.0d;
-		sampleStdDeviation = 0.0d;
+		minimum = Double.MAX_VALUE;
+		maximum = Double.MIN_VALUE;
+		average = 0.0d;
+		totalVariance = 0.0d;
+		stdDeviation = 0.0d;
 	}
 
 	/**
 	 * Private constructor to enforce immutability, use factory methods
 	 */
-	private ImmutableStatisticalDistribution(final long sampleCount, final long minimum, final long maximum, final double sampleAverage, final double sampleVariance, final double sampleStdDeviation) {
+	private ImmutableStatisticalDistribution(final long sampleCount, final double minimum, final double maximum, final double sampleAverage, final double sampleVariance, final double sampleStdDeviation) {
 		this.sampleCount = sampleCount;
 		this.minimum = minimum;
 		this.maximum = maximum;
-		this.sampleAverage = sampleAverage;
-		this.sampleVariance = sampleVariance;
-		this.sampleStdDeviation = sampleStdDeviation;
+		this.average = sampleAverage;
+		this.totalVariance = sampleVariance;
+		this.stdDeviation = sampleStdDeviation;
 	}
 
 
@@ -109,31 +109,30 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 
 
 	@Override
-	public long getMinimum() {
+	public double getMinimum() {
 		return minimum;
 	}
 
 
 	@Override
-	public long getMaximum() {
+	public double getMaximum() {
 		return maximum;
 	}
 
 
 	@Override
 	public double getAverage() {
-		return sampleAverage;
+		return average;
 	}
 
-
-	@Override
-	public double getVariance() {
-		return sampleVariance;
+	@Override //qqqq moet weg
+	public double getTotalVariance() {
+		return totalVariance;
 	}
 
 	@Override
 	public double getStdDeviation() {
-		return sampleStdDeviation;
+		return stdDeviation;
 	}
 
 	@Override
@@ -142,9 +141,8 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 				"sampleCount=" + sampleCount +
 				", min=" + minimum +
 				", max=" + maximum +
-				", avg=" + sampleAverage +
-				", variance=" + sampleVariance +
-				", stddev=" + sampleStdDeviation +
+				", avg=" + average +
+				", stddev=" + stdDeviation +
 				']';
 	}
 }
