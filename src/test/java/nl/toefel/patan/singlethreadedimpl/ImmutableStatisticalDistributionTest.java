@@ -53,17 +53,19 @@ public class ImmutableStatisticalDistributionTest {
 
 	@Test
 	public void qqqq() {
-		StatisticalDistribution dist = ImmutableStatisticalDistribution.createWithSingleSample(1);
-		for (int i = 1; i < 10; i++) {
-			dist = dist.newWithExtraSample(i);
+		ImmutableStatisticalDistribution dist = (ImmutableStatisticalDistribution) ImmutableStatisticalDistribution.createEmpty();
+		for (int i = 1; i <= 10; i++) {
+			System.out.println("*** i=" + i);
+			dist = (ImmutableStatisticalDistribution) dist.newWithExtraSample(i);
 		}
 		double expStdDev = Math.sqrt((2 * 4.5 * 4.5 + 2 * 3.5 * 3.5 + 2 * 2.5 * 2.5 + 2 * 1.5 * 1.5 + 2 * 0.5 * 0.5) / 9);
-		assertClose(expStdDev, dist.getStdDeviation());
+		assertClose("stdDeviationQqqq", expStdDev, dist.getStdDeviationQqqq());
+		assertClose("stdDeviation", expStdDev, dist.getStdDeviation());
 		//qqqq assert min, max, avg, count, stdDev
 	}
 	
-	private void assertClose(double exp, double act) {
-		System.out.println("exp=" + exp + "\nact=" + act);
-		assertThat(Math.abs(exp - act) < 1E-10).isTrue();
+	private void assertClose(String msg, double exp, double act) {
+		System.out.println(String.format("msg=%s\nexp=%s\nact=%s", msg, exp, act));
+		assertThat(Math.abs(exp - act) < 1E-10).isTrue().as(msg);
 	}
 }
