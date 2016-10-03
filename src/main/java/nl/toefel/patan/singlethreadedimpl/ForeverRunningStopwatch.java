@@ -21,18 +21,27 @@ package nl.toefel.patan.singlethreadedimpl;
 import nl.toefel.patan.api.Stopwatch;
 
 public class ForeverRunningStopwatch implements Stopwatch {
-	protected final long millisAtStart;
+
+	private static final double MEGA = 1000 * 1000;
+
+	private final long nanosAtStart;
+
 
 	public static ForeverRunningStopwatch startNewStopwatch() {
-		return new ForeverRunningStopwatch(System.currentTimeMillis());
+		return new ForeverRunningStopwatch(System.nanoTime());
 	}
 
-	protected ForeverRunningStopwatch(long millisAtStart) {
-		this.millisAtStart = millisAtStart;
+	private ForeverRunningStopwatch(long nanosAtStart) {
+		this.nanosAtStart = nanosAtStart;
 	}
 
 	@Override
-	public long elapsedMillis() {
-		return System.currentTimeMillis() - millisAtStart;
+	public double elapsedMillis() {
+		return elapsedNanos() / MEGA;
+	}
+
+	@Override
+	public long elapsedNanos() {
+		return System.nanoTime() - nanosAtStart;
 	}
 }

@@ -25,10 +25,12 @@ import org.junit.Test;
 
 import java.util.Map;
 
+import static nl.toefel.patan.singlethreadedimpl.TimingHelper.assertClose;
 import static nl.toefel.patan.singlethreadedimpl.AssertionHelper.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.junit.Assert.fail;
+
 /**
  * Base class for tests that verify correctness of the API.
  */
@@ -75,16 +77,20 @@ public abstract class StatisticsApiTestBase {
 		Stopwatch stopwatch = stats.startStopwatch();
 
 		TimingHelper.expensiveMethodTakingMillis(100);
-		long elapsed = stats.recordElapsedTime("test.duration", stopwatch);
+		double elapsedMillis = stats.recordElapsedTime("test.duration", stopwatch);
+		long elapsedNanos = stopwatch.elapsedNanos(); // should be a few nanos more then elapsedMillis
 
 		StatisticalDistribution record = stats.findDuration("test.duration");
 
-		assertThat((double) elapsed)
+		assertThat((double) elapsedMillis)
 				.isEqualTo(record.getMinimum())
 				.isEqualTo(record.getMaximum());
-		assertThat(record.getAverage()).isCloseTo(elapsed, within(0.001));
+		assertThat(record.getAverage()).isCloseTo(elapsedMillis, within(0.001));
 		assertRecordHasParametersWithin(record, 1, 100, 100, 100, 20);
 		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
+
+		assertClose("testRecordElapsedTime", 1d, 100d, elapsedMillis);
+		assertThat((double) elapsedNanos > elapsedMillis * 1000d * 1000d);
 	}
 
 	@Test
@@ -254,11 +260,11 @@ public abstract class StatisticsApiTestBase {
 		Stopwatch stopwatch = stats.startStopwatch();
 
 		stats.recordElapsedTime("test.test", stopwatch); // approx 0ms
-		long millisStart = stopwatch.elapsedMillis();
+		double millisStart = stopwatch.elapsedMillis();
 		TimingHelper.expensiveMethodTakingMillis(100);
 		stats.recordElapsedTime("test.test", stopwatch); // approx 100ms
 		TimingHelper.expensiveMethodTakingMillis(100);
-		long millisEnd = stopwatch.elapsedMillis();
+		double millisEnd = stopwatch.elapsedMillis();
 		stats.recordElapsedTime("test.test", stopwatch); // approx 200ms;
 
 		StatisticalDistribution duration = stats.findDuration("test.test");

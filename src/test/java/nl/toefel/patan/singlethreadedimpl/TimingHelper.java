@@ -16,7 +16,11 @@
 
 package nl.toefel.patan.singlethreadedimpl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TimingHelper {
+
+
 
 	public static String expensiveMethodTakingMillis(final int millis) {
 		try {
@@ -34,5 +38,13 @@ public class TimingHelper {
 		} catch (InterruptedException e) {
 			throw new IllegalStateException(e);
 		}
+	}
+
+	public static void assertClose(String msg, double exp, double act) {
+		assertClose(msg, 1E-10, exp, act);
+	}
+
+	public static void assertClose(String msg, double epsilon, double exp, double act) {
+		assertThat(Math.abs(exp - act) < epsilon).as(String.format("msg=%s, exp=%s, act=%s", msg, exp, act)).isTrue();
 	}
 }

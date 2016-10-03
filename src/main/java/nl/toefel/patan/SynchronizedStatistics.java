@@ -70,7 +70,7 @@ public class SynchronizedStatistics implements Statistics {
 
 
     @Override
-    public long recordElapsedTime(String eventName, Stopwatch stopwatch) {
+    public double recordElapsedTime(String eventName, Stopwatch stopwatch) {
         try {
             rwLock.writeLock().lock();
             return statistics.recordElapsedTime(eventName, stopwatch);
@@ -200,7 +200,7 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public void addSample(String eventName, long value) {
+    public void addSample(String eventName, double value) {
         try {
             rwLock.writeLock().lock();
             statistics.addSample(eventName, value);

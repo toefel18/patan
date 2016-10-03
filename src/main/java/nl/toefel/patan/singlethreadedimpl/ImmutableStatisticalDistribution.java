@@ -45,7 +45,7 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 	 * @param sampleValue the value to initialize the distribution with
 	 * @return a statistic with one sample
 	 */
-	public static StatisticalDistribution createWithSingleSample(long sampleValue) {
+	public static StatisticalDistribution createWithSingleSample(double sampleValue) {
 		return new ImmutableStatisticalDistribution().newWithExtraSample(sampleValue);
 	}
 

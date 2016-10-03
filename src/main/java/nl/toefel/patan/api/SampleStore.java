@@ -30,7 +30,7 @@ public interface SampleStore extends Resettable {
 	 * @param name the name of the sample
 	 * @param value current value to record into the distribution
 	 */
-	void addSample(String name, long value);
+	void addSample(String name, double value);
 
 	/**
 	 * Finds the statistical distribution by name. If the name has not been found, a empty statistic will be returned,

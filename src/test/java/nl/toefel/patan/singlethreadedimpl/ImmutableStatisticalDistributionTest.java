@@ -3,6 +3,7 @@ package nl.toefel.patan.singlethreadedimpl;
 import nl.toefel.patan.api.StatisticalDistribution;
 import org.junit.Test;
 
+import static nl.toefel.patan.singlethreadedimpl.TimingHelper.assertClose;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -57,15 +58,10 @@ public class ImmutableStatisticalDistributionTest {
 		for (int i = 1; i <= 10; i++) {
 			dist = (ImmutableStatisticalDistribution) dist.newWithExtraSample(i);
 		}
-        assertClose("min", 1d, dist.getMinimum());
-        assertClose("min", 10d, dist.getMaximum());
-        assertClose("mean", 5.5d, dist.getMean());
+		assertClose("min", 1d, dist.getMinimum());
+		assertClose("min", 10d, dist.getMaximum());
+		assertClose("mean", 5.5d, dist.getMean());
         final double expStdDev = Math.sqrt((2 * 4.5d * 4.5d + 2 * 3.5d * 3.5d + 2 * 2.5d * 2.5d + 2 * 1.5d * 1.5d + 2 * 0.5d * 0.5d) / 9);
         assertClose("stdDeviation", expStdDev, dist.getStdDeviation());
-	}
-	
-	private void assertClose(String msg, double exp, double act) {
-		//System.out.println(String.format("msg=%s\nexp=%s\nact=%s", msg, exp, act));
-		assertThat(Math.abs(exp - act) < 1E-10).isTrue().as(msg);
 	}
 }

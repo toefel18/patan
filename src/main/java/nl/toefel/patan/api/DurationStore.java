@@ -39,7 +39,7 @@ public interface DurationStore extends Resettable {
 	 * @param stopwatch the {@link Stopwatch} that measures the elapsed time
 	 * @return the recorded elapsed millis
 	 */
-	long recordElapsedTime(String eventName, Stopwatch stopwatch);
+	double recordElapsedTime(String eventName, Stopwatch stopwatch);
 
 	/**
 	 * Finds the current statistical distribution for the recorded durations under the given name. If the name has not been found,

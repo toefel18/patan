@@ -27,7 +27,7 @@ public class StatisticDistributionStore implements SampleStore {
 	private SortedMap<String, StatisticalDistribution> distributionsByName = new TreeMap<String, StatisticalDistribution>();
 
 	@Override
-	public void addSample(String name, long value) {
+	public void addSample(String name, double value) {
 		if (distributionsByName.containsKey(name)) {
 			distributionsByName.put(name, distributionsByName.get(name).newWithExtraSample(value));
 		} else {
