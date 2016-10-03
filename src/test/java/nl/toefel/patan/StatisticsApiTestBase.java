@@ -128,7 +128,7 @@ public abstract class StatisticsApiTestBase {
 		});
 		StatisticalDistribution record = stats.findDuration("test.duration.ok");
 		assertThat(record.getMinimum()).isEqualTo(record.getMaximum());
-		assertThat(record.getMean()).isCloseTo(100, within(1.001)); // within 1 because timing issues if build is slow
+		assertThat(record.getMean()).isCloseTo(100, within(10.001)); // within 10 because timing issues if build is slow
 		assertRecordHasParametersWithin(record, 1, 100, 100, 100, 20);
 		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
 	}
