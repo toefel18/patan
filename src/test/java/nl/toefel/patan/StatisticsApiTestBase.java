@@ -94,6 +94,23 @@ public abstract class StatisticsApiTestBase {
 	}
 
 	@Test
+	public void testRecordElapsedNanos() {
+		Stopwatch stopwatch = stats.startStopwatch();
+
+		TimingHelper.expensiveMethodTakingMillis(100);
+		long recoredNanos = stats.recordElapsedNanos("test.duration.nanos", stopwatch);
+		long elapsedNanos = stopwatch.elapsedNanos();
+
+		StatisticalDistribution record = stats.findDuration("test.duration.nanos");
+
+		assertThat((double) recoredNanos)
+				.isEqualTo(record.getMinimum())
+				.isEqualTo(record.getMaximum());
+		assertThat(record.getMean()).isCloseTo(elapsedNanos, within(1000000.0));
+		// other tests test the distribution in more detail
+	}
+
+	@Test
 	public void testNanosOverflowOK() {
 		long t0 = Long.MAX_VALUE - 1L;
 		long t1 = Long.MIN_VALUE + 1L;
@@ -117,6 +134,19 @@ public abstract class StatisticsApiTestBase {
 	}
 
 	@Test
+	public void testRecordElapsedNanosRunnable() {
+		stats.recordElapsedNanos("test.duration.nano", new Runnable() {
+			@Override
+			public void run() {
+				TimingHelper.expensiveMethodTakingMillis(100);
+			}
+		});
+		StatisticalDistribution record = stats.findDuration("test.duration.nano.ok");
+		assertThat(record.getMinimum()).isEqualTo(record.getMaximum());
+		assertThat(record.getMean()).isCloseTo(100000000, within(1000000.0));
+	}
+
+	@Test
 	public void testRecordElapsedRunnableException() {
 		long elapsedGuess = System.currentTimeMillis();
 		try {
@@ -135,11 +165,10 @@ public abstract class StatisticsApiTestBase {
 		}
 	}
 
-
 	@Test
 	public void testRecordElapsedTimeTask() {
 		String retValue;// = stats.recordElapsedTime("test.duration", () ->
-						// expensiveMethodTakingMillis(100));
+		// expensiveMethodTakingMillis(100));
 		long elapsedGuess = System.currentTimeMillis();
 		retValue = stats.recordElapsedTime("test.duration", new TimedTask<String>() {
 			@Override
@@ -152,6 +181,22 @@ public abstract class StatisticsApiTestBase {
 		StatisticalDistribution record = stats.findDuration("test.duration.ok");
 		assertRecordHasParametersWithin(record, 1, elapsedGuess, elapsedGuess, elapsedGuess, 40);
 		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
+	}
+
+	@Test
+	public void testRecordElapsedNanosTimeTask() {
+		String retValue;// = stats.recordElapsedTime("test.duration", () ->
+		// expensiveMethodTakingMillis(100));
+		retValue = stats.recordElapsedNanos("test.duration.nano", new TimedTask<String>() {
+			@Override
+			public String get() {
+				return TimingHelper.expensiveMethodTakingMillis(100);
+			}
+		});
+		assertThat(retValue).isEqualTo("hi");
+		StatisticalDistribution record = stats.findDuration("test.duration.nano.ok");
+		assertThat(record.getMinimum()).isEqualTo(record.getMaximum());
+		assertThat(record.getMean()).isCloseTo(100000000, within(1000000.0));
 	}
 
 	@Test
