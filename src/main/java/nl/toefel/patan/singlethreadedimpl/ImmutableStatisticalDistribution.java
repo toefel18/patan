@@ -62,7 +62,7 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 	@Override
 	public StatisticalDistribution newWithExtraSample(double sampleValue) {
 		ImmutableStatisticalDistribution previous = this; // for readability
-		double shift = previous.isEmpty() ? sampleValue : previous.shift;
+		double shift = previous.isEmpty() ? sampleValue : previous.shift; // must be set only once
 		long updatedCount = previous.sampleCount + 1;
 		double updatedMinimum = sampleValue < previous.minimum ? sampleValue : previous.minimum;
 		double updatedMaximum = sampleValue > previous.maximum ? sampleValue : previous.maximum;
