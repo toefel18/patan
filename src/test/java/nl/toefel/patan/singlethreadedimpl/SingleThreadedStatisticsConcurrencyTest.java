@@ -29,7 +29,10 @@ public class SingleThreadedStatisticsConcurrencyTest extends ConcurrencyTestBase
         return StatisticsFactory.createSingleThreadedStatistics();
     }
 
-    @Test (expected = AssertionError.class)
+    /**
+     * Pseudo unit test, Throwable is not always thrown. Meant for running it manually several times.
+     */
+    @Test (expected = Throwable.class)
     public void testConcurrencyTenThreadsEach() {
         runConcurrencyTest(10, 10000);
     }

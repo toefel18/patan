@@ -19,11 +19,6 @@ public interface StatisticalDistribution {
 	StatisticalDistribution newWithExtraSample(double sampleValue);
 
 	/**
-	 * @return false if distribution does not contain samples
-	 */
-	boolean isEmpty();
-
-	/**
 	 * @return the number of recorded samples in the distribution
 	 */
 	long getSampleCount();
@@ -39,12 +34,7 @@ public interface StatisticalDistribution {
 	double getMaximum();
 
     /**
-     * Alias for @Link {@link #getMean()}.
-     */
-    double getAverage();
-
-    /**
-     * @return the mean of all samples in the distribution
+	 * @return the mean of all samples in the distribution
      */
     double getMean();
 

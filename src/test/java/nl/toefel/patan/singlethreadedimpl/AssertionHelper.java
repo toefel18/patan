@@ -37,7 +37,7 @@ public class AssertionHelper {
 		assertThat(record.getSampleCount()).as("sampleCount").isEqualTo(samples);
 		assertThat(record.getMinimum()).as("minimum").isEqualTo(min);
 		assertThat(record.getMaximum()).as("maximum").isEqualTo(max);
-		assertThat(record.getAverage()).as("average").isEqualTo(avg);
+		assertThat(record.getMean()).as("average").isEqualTo(avg);
 		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(stddev);
 	}
 
@@ -50,7 +50,7 @@ public class AssertionHelper {
 		assertThat(record.getSampleCount()).as("sampleCount").isEqualTo(samples);
 		assertThat(record.getMinimum()).as("minimum").isCloseTo(min, within((double) offsetRange));
 		assertThat(record.getMaximum()).as("maximum").isCloseTo(max, within((double) offsetRange));
-		assertThat(record.getAverage()).as("average").isCloseTo(avg, within((double) offsetRange));
+		assertThat(record.getMean()).as("average").isCloseTo(avg, within((double) offsetRange));
 	}
 
 	public static Snapshot assertEmpty(Snapshot snapshot) {

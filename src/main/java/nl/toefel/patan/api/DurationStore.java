@@ -43,7 +43,7 @@ public interface DurationStore extends Resettable {
 
 	/**
 	 * Finds the current statistical distribution for the recorded durations under the given name. If the name has not been found,
-	 * a empty distribution will be returned, use the {@link StatisticalDistribution#isEmpty()} method to check for emptiness.
+	 * a empty distribution will be returned, use the {@link StatisticalDistribution#getSampleCount()} method to check for emptiness.
 	 *
 	 * @param eventName the name of the event to lookup
 	 * @return a copy of the internal statistic, never null

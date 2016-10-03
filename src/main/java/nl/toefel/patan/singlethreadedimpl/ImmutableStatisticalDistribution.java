@@ -62,7 +62,7 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 	@Override
 	public StatisticalDistribution newWithExtraSample(double sampleValue) {
 		ImmutableStatisticalDistribution previous = this; // for readability
-		double shift = previous.isEmpty() ? sampleValue : previous.shift; // must be set only once
+		double shift = previous.getSampleCount() == 0 ? sampleValue : previous.shift; // must be set only once
 		long updatedCount = previous.sampleCount + 1;
 		double updatedMinimum = sampleValue < previous.minimum ? sampleValue : previous.minimum;
 		double updatedMaximum = sampleValue > previous.maximum ? sampleValue : previous.maximum;
@@ -94,13 +94,6 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 		this.shiftedSumSqr = shiftedSumSqr;
 	}
 
-
-	@Override
-	public boolean isEmpty() {
-		return sampleCount <= 0;
-	}
-
-
 	@Override
 	public long getSampleCount() {
 		return sampleCount;
@@ -121,11 +114,6 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 	@Override
 	public double getMean() {
 		return sum / sampleCount;
-	}
-
-	@Override
-	public double getAverage() {
-		return getMean();
 	}
 
 	@Override

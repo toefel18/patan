@@ -82,7 +82,7 @@ public class DetachedSnapshotTest {
 
 	@Test
 	public void testFindDurationNotExisting() {
-		Assertions.assertThat(new DetachedSnapshot(samples, occurrences, durations).findDuration("nonexisting").isEmpty()).isTrue();
+		Assertions.assertThat(new DetachedSnapshot(samples, occurrences, durations).findDuration("nonexisting").getSampleCount() == 0).isTrue();
 	}
 
 	@Test
@@ -92,6 +92,6 @@ public class DetachedSnapshotTest {
 
 	@Test
 	public void testFindSampleDistributionNotExisting() {
-		Assertions.assertThat(new DetachedSnapshot(samples, occurrences, durations).findSampleDistribution("nonexisting").isEmpty()).isTrue();
+		Assertions.assertThat(new DetachedSnapshot(samples, occurrences, durations).findSampleDistribution("nonexisting").getSampleCount() == 0).isTrue();
 	}
 }

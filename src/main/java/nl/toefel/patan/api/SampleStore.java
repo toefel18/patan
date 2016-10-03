@@ -34,7 +34,7 @@ public interface SampleStore extends Resettable {
 
 	/**
 	 * Finds the statistical distribution by name. If the name has not been found, a empty statistic will be returned,
-	 * use the {@link StatisticalDistribution#isEmpty()} method to check for emptiness.
+	 * use the {@link StatisticalDistribution#getSampleCount()} method to check for emptiness.
 	 *
 	 * @param name the name of the event to lookup
 	 * @return a copy of the internal statistic, never null
