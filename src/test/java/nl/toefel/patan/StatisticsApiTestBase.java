@@ -84,7 +84,6 @@ public abstract class StatisticsApiTestBase {
 				.isEqualTo(record.getMaximum());
 		assertThat(record.getAverage()).isCloseTo(elapsed, within(0.001));
 		assertRecordHasParametersWithin(record, 1, 100, 100, 100, 20);
-		assertThat(record.getTotalVariance()).as("variance").isCloseTo(0.0d, within(0.0d));
 		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
 	}
 
@@ -101,7 +100,6 @@ public abstract class StatisticsApiTestBase {
 		assertThat(record.getMinimum()).isEqualTo(record.getMaximum());
 		assertThat(record.getAverage()).isCloseTo(100, within(1.001)); // within 1 because timing issues if build is slow
 		assertRecordHasParametersWithin(record, 1, 100, 100, 100, 20);
-		assertThat(record.getTotalVariance()).as("variance").isCloseTo(0.0d, within(0.0d));
 		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
 	}
 
@@ -120,7 +118,6 @@ public abstract class StatisticsApiTestBase {
 			elapsedGuess = System.currentTimeMillis()-elapsedGuess;
 			StatisticalDistribution record = stats.findDuration("test.duration.failed");
 			assertRecordHasParametersWithin(record, 1, elapsedGuess, elapsedGuess, elapsedGuess, 40);
-			assertThat(record.getTotalVariance()).as("variance").isCloseTo(0.0d, within(0.0d));
 			assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
 		}
 	}
@@ -141,7 +138,6 @@ public abstract class StatisticsApiTestBase {
 		assertThat(retValue).isEqualTo("hi");
 		StatisticalDistribution record = stats.findDuration("test.duration.ok");
 		assertRecordHasParametersWithin(record, 1, elapsedGuess, elapsedGuess, elapsedGuess, 40);
-		assertThat(record.getTotalVariance()).as("variance").isCloseTo(0.0d, within(0.0d));
 		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
 	}
 
@@ -160,7 +156,6 @@ public abstract class StatisticsApiTestBase {
 			elapsedGuess = System.currentTimeMillis()-elapsedGuess;
 			StatisticalDistribution record = stats.findDuration("test.duration.failed");
 			assertRecordHasParametersWithin(record, 1, elapsedGuess, elapsedGuess, elapsedGuess, 40);
-			assertThat(record.getTotalVariance()).as("variance").isCloseTo(0.0d, within(0.0d));
 			assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
 		}
 	}
@@ -177,7 +172,6 @@ public abstract class StatisticsApiTestBase {
 
 		StatisticalDistribution record = stats.findDuration("test.duration");
 		assertRecordHasParametersWithin(record, 2, 80, 150, 115.0d, 20);
-		assertThat(record.getTotalVariance()).as("variance").isCloseTo(2450.0d, within(200.0d));
 		assertThat(record.getStdDeviation()).as("standardDeviation").isCloseTo(50, within(5.0d));
 	}
 
@@ -250,7 +244,6 @@ public abstract class StatisticsApiTestBase {
 		assertThat(stat.getMinimum()).as("minimum").isEqualTo(5);
 		assertThat(stat.getMaximum()).as("maximum").isEqualTo(15);
 		assertThat(stat.getAverage()).as("average").isCloseTo(10, within(0.01d));
-		assertThat(stat.getTotalVariance()).as("variance").isCloseTo(50.0, within(0.01d));
 		assertThat(stat.getStdDeviation()).as("standardDeviation").isCloseTo(5, within(0.01d));
 	}
 
@@ -274,7 +267,6 @@ public abstract class StatisticsApiTestBase {
 		assertThat(duration.getMinimum()).as("minimum").isCloseTo(millisStart, within(ALLOWED_OFFSET_DRIFT));
 		assertThat(duration.getMaximum()).as("maximum").isCloseTo(millisEnd, within(ALLOWED_OFFSET_DRIFT));
 		assertThat(duration.getAverage()).as("average").isCloseTo(100, within(50.0d));
-		assertThat(duration.getTotalVariance()).as("variance").isCloseTo(20200, within(1000.0));
 		assertThat(duration.getStdDeviation()).as("standardDeviation").isCloseTo(100, within(5.0));
 	}
 

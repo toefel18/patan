@@ -25,17 +25,13 @@ import nl.toefel.patan.api.StatisticalDistribution;
  */
 public final class ImmutableStatisticalDistribution implements StatisticalDistribution {
 
-	private static final StatisticalDistribution EMPTY_STATISTICAL_DISTRIBUTION = new ImmutableStatisticalDistribution();
-
 	private final long sampleCount;
 	private final double minimum;
 	private final double maximum;
-	private final double average; ///qqqq ren to mean
-	private final double totalVariance; //qqqq drop
-	private final double stdDeviation; //qqqq drop, calculated field
+	private final double sum;
 	private final double shift;
-	private final double sum; //qqqq ren to shiftedSum?
-	private final double sumSqr; //qqqq ren to shiftedSumSqr?
+	private final double shiftedSum;
+	private final double shiftedSumSqr;
 
 	/**
 	 * @return an empty statistic;
@@ -57,27 +53,23 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 	 * Creates a new statistical distribution object based on this distribution and the extra
 	 * value that is being added.
 	 * <p>
-	 * Average, sampleVariance and sampleStdDeviation calculations are taken from
-	 * <a href="http://en.wikipedia.org/wiki/Standard_deviation">http://en.wikipedia.org/wiki/Standard_deviation</a>
-	 * qqqq https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Computing_shifted_data
+	 * Mean and stdDeviation calculations are taken from
+	 * <a href="https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Computing_shifted_data">omputing shifted data</a>
 	 *
 	 * @param sampleValue the value to merge with this record
 	 * @return new, immutable, distribution
 	 */
 	@Override
-	public StatisticalDistribution newWithExtraSample(double sampleValue) { //qqqq use https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance Computing shifted data[edit]
+	public StatisticalDistribution newWithExtraSample(double sampleValue) {
 		ImmutableStatisticalDistribution previous = this; // for readability
 		double shift = previous.isEmpty() ? sampleValue : previous.shift;
 		long updatedCount = previous.sampleCount + 1;
 		double updatedMinimum = sampleValue < previous.minimum ? sampleValue : previous.minimum;
 		double updatedMaximum = sampleValue > previous.maximum ? sampleValue : previous.maximum;
-		double updatedAverage = previous.average + ((sampleValue - previous.average) / updatedCount);
-		double updatedTotalVariance = previous.totalVariance + ((sampleValue - previous.average) * (sampleValue - updatedAverage));
-		double updatedStdDeviation = Math.sqrt(updatedTotalVariance / (updatedCount - 1));
-		double updatedSum = sum + sampleValue - shift;
-		double updatedSumSqr = sumSqr + (sampleValue - shift) * (sampleValue - shift);
-		//qqqq System.out.println(String.format("sampleValue=%s, updatedCount=%s, shift=%s, updatedSum=%s, updatedSumSqr=%s", sampleValue, updatedCount, shift, updatedSum, updatedSumSqr));
-		ImmutableStatisticalDistribution newDist = new ImmutableStatisticalDistribution(updatedCount, updatedMinimum, updatedMaximum, updatedAverage, updatedTotalVariance, updatedStdDeviation, shift, updatedSum, updatedSumSqr);
+		double updatedSum = previous.sum + sampleValue;
+		double updatedShiftedSum = shiftedSum + sampleValue - shift;
+		double updatedShiftedSumSqr = shiftedSumSqr + (sampleValue - shift) * (sampleValue - shift);
+		ImmutableStatisticalDistribution newDist = new ImmutableStatisticalDistribution(updatedCount, updatedMinimum, updatedMaximum, updatedSum, shift, updatedShiftedSum, updatedShiftedSumSqr);
 		return newDist;
 	}
 
@@ -85,23 +77,21 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 	 * Private constructor to enforce immutability, use factory methods
 	 */
 	private ImmutableStatisticalDistribution() {
-		this(0, Double.MAX_VALUE, Double.MIN_VALUE, 0, 0, 0, 0, 0, 0);
+		this(0, Double.MAX_VALUE, Double.MIN_VALUE, 0, 0, 0, 0);
 	}
 
 	/**
 	 * Private constructor to enforce immutability, use factory methods
 	 */
-	private ImmutableStatisticalDistribution(final long sampleCount, final double minimum, final double maximum, final double sampleAverage, final double sampleVariance, final double sampleStdDeviation,
-			final double shift, final double sum, final double sumSqr) {
+	private ImmutableStatisticalDistribution(final long sampleCount, final double minimum, final double maximum, final double sum,
+											 final double shift, final double shiftedSum, final double shiftedSumSqr) {
 		this.sampleCount = sampleCount;
 		this.minimum = minimum;
 		this.maximum = maximum;
-		this.average = sampleAverage;
-		this.totalVariance = sampleVariance;
-		this.stdDeviation = sampleStdDeviation;
-		this.shift = shift;
 		this.sum = sum;
-		this.sumSqr = sumSqr;
+		this.shift = shift;
+		this.shiftedSum = shiftedSum;
+		this.shiftedSumSqr = shiftedSumSqr;
 	}
 
 
@@ -128,24 +118,19 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 		return maximum;
 	}
 
+	@Override
+	public double getMean() {
+		return sum / sampleCount;
+	}
 
 	@Override
 	public double getAverage() {
-		return average;
-	}
-
-	@Override //qqqq moet weg
-	public double getTotalVariance() {
-		return totalVariance;
+		return getMean();
 	}
 
 	@Override
 	public double getStdDeviation() {
-		return stdDeviation;
-	}
-
-	public double getStdDeviationQqqq() {
-		return Math.sqrt((sumSqr - sum * sum / sampleCount)/(sampleCount - 1));
+		return Math.sqrt((shiftedSumSqr - shiftedSum * shiftedSum / sampleCount)/(sampleCount - 1));
 	}
 
 	@Override
@@ -154,8 +139,8 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 				"sampleCount=" + sampleCount +
 				", min=" + minimum +
 				", max=" + maximum +
-				", avg=" + average +
-				", stddev=" + stdDeviation +
+				", mean=" + getMean() +
+				", stddev=" + getStdDeviation() +
 				']';
 	}
 }

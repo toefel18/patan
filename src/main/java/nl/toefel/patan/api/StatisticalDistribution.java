@@ -38,15 +38,15 @@ public interface StatisticalDistribution {
 	 */
 	double getMaximum();
 
-	/**
-	 * @return the average of all samples in the distribution
-	 */
-	double getAverage();
+    /**
+     * Alias for @Link {@link #getMean()}.
+     */
+    double getAverage();
 
-	/**
-	 * @return qqqq moet weg maar hoe voorkom je dat hij in JSON outputs komt wat private veld moet blijven
-	 */
-	double getTotalVariance();
+    /**
+     * @return the mean of all samples in the distribution
+     */
+    double getMean();
 
 	/**
 	 * @return the standard deviation of all samples in the distribution

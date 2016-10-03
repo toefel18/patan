@@ -38,7 +38,6 @@ public class AssertionHelper {
 		assertThat(record.getMinimum()).as("minimum").isEqualTo(min);
 		assertThat(record.getMaximum()).as("maximum").isEqualTo(max);
 		assertThat(record.getAverage()).as("average").isEqualTo(avg);
-		assertThat(record.getTotalVariance()).as("variance").isEqualTo(variance);
 		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(stddev);
 	}
 
