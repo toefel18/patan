@@ -49,6 +49,31 @@ public class SingleThreadedStatisticsFacade implements Statistics {
 	}
 
 	@Override
+	public <T> T recordElapsedNanos(String eventName, TimedTask<T> runnable) {
+		Stopwatch stopwatch = startStopwatch();
+		try {
+			T val = runnable.get();
+			recordElapsedNanos(eventName + ".ok", stopwatch);
+			return val;
+		} catch (RuntimeException e) {
+			recordElapsedNanos(eventName + ".failed", stopwatch);
+			throw e;
+		}
+	}
+
+	@Override
+	public void recordElapsedNanos(String eventName, Runnable runnable) {
+		Stopwatch stopwatch = startStopwatch();
+		try {
+			runnable.run();
+			recordElapsedNanos(eventName + ".ok", stopwatch);
+		} catch (RuntimeException e) {
+			recordElapsedNanos(eventName + ".failed", stopwatch);
+			throw e;
+		}
+	}
+
+	@Override
 	public <T> T recordElapsedTime(final String eventName, final TimedTask<T> runnable) {
 		Stopwatch stopwatch = startStopwatch();
 		try {
@@ -62,10 +87,17 @@ public class SingleThreadedStatisticsFacade implements Statistics {
 	}
 
 	@Override
-	public long recordElapsedTime(final String eventName, final Stopwatch stopwatch) {
-		long elapsedMillis = stopwatch.elapsedMillis();
+	public double recordElapsedTime(final String eventName, final Stopwatch stopwatch) {
+		double elapsedMillis = stopwatch.elapsedMillis();
 		durationStore.addSample(eventName, elapsedMillis);
 		return elapsedMillis;
+	}
+
+	@Override
+	public long recordElapsedNanos(String eventName, Stopwatch stopwatch) {
+		long elapsedNanos = stopwatch.elapsedNanos();
+		durationStore.addSample(eventName, elapsedNanos);
+		return elapsedNanos;
 	}
 
 	@Override
@@ -94,7 +126,7 @@ public class SingleThreadedStatisticsFacade implements Statistics {
 	}
 
 	@Override
-	public void addSample(final String eventName, final long value) {
+	public void addSample(final String eventName, final double value) {
 		sampleStore.addSample(eventName, value);
 	}
 

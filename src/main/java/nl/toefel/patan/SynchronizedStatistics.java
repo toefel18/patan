@@ -54,7 +54,35 @@ public class SynchronizedStatistics implements Statistics {
 			throw e;
 		}
 	}
-	@Override
+
+    @Override
+    public <T> T recordElapsedNanos(String eventName, TimedTask<T> runnable) {
+        // don't hold lock while running, it might block long and is not needed
+        Stopwatch stopwatch = startStopwatch();
+        try {
+            T val = runnable.get();
+            recordElapsedNanos(eventName + ".ok", stopwatch);
+            return val;
+        } catch (RuntimeException e) {
+            recordElapsedNanos(eventName + ".failed", stopwatch);
+            throw e;
+        }
+    }
+
+    @Override
+    public void recordElapsedNanos(String eventName, Runnable runnable) {
+        // don't hold lock while running, it might block long and is not needed
+        Stopwatch stopwatch = startStopwatch();
+        try {
+            runnable.run();
+            recordElapsedNanos(eventName + ".ok", stopwatch);
+        } catch (RuntimeException e) {
+            recordElapsedNanos(eventName + ".failed", stopwatch);
+            throw e;
+        }
+    }
+
+    @Override
 	public <T> T recordElapsedTime(final String eventName, final TimedTask<T> runnable) {
     	// don't hold lock while running, it might block long and is not needed
 		Stopwatch stopwatch = startStopwatch();
@@ -70,10 +98,20 @@ public class SynchronizedStatistics implements Statistics {
 
 
     @Override
-    public long recordElapsedTime(String eventName, Stopwatch stopwatch) {
+    public double recordElapsedTime(String eventName, Stopwatch stopwatch) {
         try {
             rwLock.writeLock().lock();
             return statistics.recordElapsedTime(eventName, stopwatch);
+        } finally {
+            rwLock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public long recordElapsedNanos(String eventName, Stopwatch stopwatch) {
+        try {
+            rwLock.writeLock().lock();
+            return statistics.recordElapsedNanos(eventName, stopwatch);
         } finally {
             rwLock.writeLock().unlock();
         }
@@ -200,7 +238,7 @@ public class SynchronizedStatistics implements Statistics {
     }
 
     @Override
-    public void addSample(String eventName, long value) {
+    public void addSample(String eventName, double value) {
         try {
             rwLock.writeLock().lock();
             statistics.addSample(eventName, value);

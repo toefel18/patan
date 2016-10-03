@@ -16,12 +16,7 @@ public interface StatisticalDistribution {
 	 * @param sampleValue the value to merge with this record
 	 * @return new statistical distribution.
 	 */
-	StatisticalDistribution newWithExtraSample(long sampleValue);
-
-	/**
-	 * @return false if distribution does not contain samples
-	 */
-	boolean isEmpty();
+	StatisticalDistribution newWithExtraSample(double sampleValue);
 
 	/**
 	 * @return the number of recorded samples in the distribution
@@ -31,22 +26,17 @@ public interface StatisticalDistribution {
 	/**
 	 * @return the lowest value in the distribution
 	 */
-	long getMinimum();
+	double getMinimum();
 
 	/**
 	 * @return the highest value in the distribution
 	 */
-	long getMaximum();
+	double getMaximum();
 
-	/**
-	 * @return the average of all samples in the distribution
-	 */
-	double getAverage();
-
-	/**
-	 * @return the variance of all samples in the distribution
-	 */
-	double getVariance();
+    /**
+	 * @return the mean of all samples in the distribution
+     */
+    double getMean();
 
 	/**
 	 * @return the standard deviation of all samples in the distribution

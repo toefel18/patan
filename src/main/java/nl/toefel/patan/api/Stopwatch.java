@@ -23,7 +23,12 @@ package nl.toefel.patan.api;
 public interface Stopwatch {
 
 	/**
-	 * @return the elapsed time since the creation of this StopWatch in millisecond precision.
+	 * @return the elapsed time since the creation of this StopWatch in milliseconds.
 	 */
-	long elapsedMillis();
+	double elapsedMillis();
+
+	/**
+	 * @return the elapsed time since the creation of this StopWatch in nanosecond precision.
+	 */
+	long elapsedNanos();
 }

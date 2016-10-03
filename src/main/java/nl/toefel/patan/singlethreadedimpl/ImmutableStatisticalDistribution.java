@@ -25,82 +25,74 @@ import nl.toefel.patan.api.StatisticalDistribution;
  */
 public final class ImmutableStatisticalDistribution implements StatisticalDistribution {
 
-	private static final StatisticalDistribution EMPTY_STATISTICAL_DISTRIBUTION = new ImmutableStatisticalDistribution();
-
 	private final long sampleCount;
-	private final long minimum;
-	private final long maximum;
-	private final double sampleAverage;
-	private final double sampleVariance;
-	private final double sampleStdDeviation;
+	private final double minimum;
+	private final double maximum;
+	private final double sum;
+	private final double shift;
+	private final double shiftedSum;
+	private final double shiftedSumSqr;
 
 	/**
 	 * @return an empty statistic;
 	 */
 	public static StatisticalDistribution createEmpty() {
-		return EMPTY_STATISTICAL_DISTRIBUTION;
+		return new ImmutableStatisticalDistribution();
+
 	}
 
 	/**
 	 * @param sampleValue the value to initialize the distribution with
 	 * @return a statistic with one sample
 	 */
-	public static StatisticalDistribution createWithSingleSample(long sampleValue) {
-		return EMPTY_STATISTICAL_DISTRIBUTION.newWithExtraSample(sampleValue);
+	public static StatisticalDistribution createWithSingleSample(double sampleValue) {
+		return new ImmutableStatisticalDistribution().newWithExtraSample(sampleValue);
 	}
 
 	/**
 	 * Creates a new statistical distribution object based on this distribution and the extra
 	 * value that is being added.
 	 * <p>
-	 * Average, sampleVariance and sampleStdDeviation calculations are taken from
-	 * <a href="http://en.wikipedia.org/wiki/Standard_deviation">http://en.wikipedia.org/wiki/Standard_deviation</a>
+	 * Mean and stdDeviation calculations are taken from
+	 * <a href="https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Computing_shifted_data">omputing shifted data</a>
 	 *
 	 * @param sampleValue the value to merge with this record
 	 * @return new, immutable, distribution
 	 */
 	@Override
-	public StatisticalDistribution newWithExtraSample(long sampleValue) {
+	public StatisticalDistribution newWithExtraSample(double sampleValue) {
 		ImmutableStatisticalDistribution previous = this; // for readability
-		long updatedSampleCount = previous.sampleCount + 1;
-		long updatedMinimum = sampleValue < previous.minimum ? sampleValue : previous.minimum;
-		long updatedMaximum = sampleValue > previous.maximum ? sampleValue : previous.maximum;
-		double updatedSampleAverage = previous.sampleAverage + ((sampleValue - previous.sampleAverage) / updatedSampleCount);
-		double updatedSampleVariance = previous.sampleVariance + ((sampleValue - previous.sampleAverage) * (sampleValue - updatedSampleAverage));
-		double updatedSampleStdDeviation = Math.sqrt(updatedSampleVariance / (updatedSampleCount - 1));
-		return new ImmutableStatisticalDistribution(updatedSampleCount, updatedMinimum, updatedMaximum, updatedSampleAverage, updatedSampleVariance, updatedSampleStdDeviation);
+		double shift = previous.getSampleCount() == 0 ? sampleValue : previous.shift; // must be set only once
+		long updatedCount = previous.sampleCount + 1;
+		double updatedMinimum = sampleValue < previous.minimum ? sampleValue : previous.minimum;
+		double updatedMaximum = sampleValue > previous.maximum ? sampleValue : previous.maximum;
+		double updatedSum = previous.sum + sampleValue;
+		double updatedShiftedSum = shiftedSum + sampleValue - shift;
+		double updatedShiftedSumSqr = shiftedSumSqr + (sampleValue - shift) * (sampleValue - shift);
+		ImmutableStatisticalDistribution newDist = new ImmutableStatisticalDistribution(updatedCount, updatedMinimum, updatedMaximum, updatedSum, shift, updatedShiftedSum, updatedShiftedSumSqr);
+		return newDist;
 	}
 
 	/**
 	 * Private constructor to enforce immutability, use factory methods
 	 */
 	private ImmutableStatisticalDistribution() {
-		sampleCount = 0;
-		minimum = Long.MAX_VALUE;
-		maximum = Long.MIN_VALUE;
-		sampleAverage = 0.0d;
-		sampleVariance = 0.0d;
-		sampleStdDeviation = 0.0d;
+		this(0, Double.MAX_VALUE, Double.MIN_VALUE, 0, 0, 0, 0);
 	}
 
 	/**
 	 * Private constructor to enforce immutability, use factory methods
 	 */
-	private ImmutableStatisticalDistribution(final long sampleCount, final long minimum, final long maximum, final double sampleAverage, final double sampleVariance, final double sampleStdDeviation) {
+	private ImmutableStatisticalDistribution(final long sampleCount, final double minimum, final double maximum, final double sum,
+											 final double shift, final double shiftedSum, final double shiftedSumSqr) {
 		this.sampleCount = sampleCount;
 		this.minimum = minimum;
 		this.maximum = maximum;
-		this.sampleAverage = sampleAverage;
-		this.sampleVariance = sampleVariance;
-		this.sampleStdDeviation = sampleStdDeviation;
+		this.sum = sum;
+		this.shift = shift;
+		this.shiftedSum = shiftedSum;
+		this.shiftedSumSqr = shiftedSumSqr;
 	}
-
-
-	@Override
-	public boolean isEmpty() {
-		return sampleCount <= 0;
-	}
-
 
 	@Override
 	public long getSampleCount() {
@@ -109,31 +101,24 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 
 
 	@Override
-	public long getMinimum() {
+	public double getMinimum() {
 		return minimum;
 	}
 
 
 	@Override
-	public long getMaximum() {
+	public double getMaximum() {
 		return maximum;
 	}
 
-
 	@Override
-	public double getAverage() {
-		return sampleAverage;
-	}
-
-
-	@Override
-	public double getVariance() {
-		return sampleVariance;
+	public double getMean() {
+		return sum / sampleCount;
 	}
 
 	@Override
 	public double getStdDeviation() {
-		return sampleStdDeviation;
+		return Math.sqrt((shiftedSumSqr - shiftedSum * shiftedSum / sampleCount)/(sampleCount - 1));
 	}
 
 	@Override
@@ -142,9 +127,8 @@ public final class ImmutableStatisticalDistribution implements StatisticalDistri
 				"sampleCount=" + sampleCount +
 				", min=" + minimum +
 				", max=" + maximum +
-				", avg=" + sampleAverage +
-				", variance=" + sampleVariance +
-				", stddev=" + sampleStdDeviation +
+				", mean=" + getMean() +
+				", stddev=" + getStdDeviation() +
 				']';
 	}
 }
