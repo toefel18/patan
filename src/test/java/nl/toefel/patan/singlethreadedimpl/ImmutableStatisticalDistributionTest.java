@@ -59,7 +59,7 @@ public class ImmutableStatisticalDistributionTest {
 			dist = (ImmutableStatisticalDistribution) dist.newWithExtraSample(i);
 		}
 		assertClose("min", 1d, dist.getMinimum());
-		assertClose("min", 10d, dist.getMaximum());
+		assertClose("man", 10d, dist.getMaximum());
 		assertClose("mean", 5.5d, dist.getMean());
         final double expStdDev = Math.sqrt((2 * 4.5d * 4.5d + 2 * 3.5d * 3.5d + 2 * 2.5d * 2.5d + 2 * 1.5d * 1.5d + 2 * 0.5d * 0.5d) / 9);
         assertClose("stdDeviation", expStdDev, dist.getStdDeviation());
