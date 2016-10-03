@@ -45,6 +45,8 @@ public class TimingHelper {
 	}
 
 	public static void assertClose(String msg, double epsilon, double exp, double act) {
-		assertThat(Math.abs(exp - act) < epsilon).as(String.format("msg=%s, exp=%s, act=%s", msg, exp, act)).isTrue();
+		String desciption = String.format("msg=%s, exp=%s, act=%s", msg, exp, act);
+		//System.out.println(desciption);
+		assertThat(Math.abs(exp - act) < epsilon).as(desciption).isTrue();
 	}
 }
