@@ -25,8 +25,8 @@ import org.junit.Test;
 
 import java.util.Map;
 
-import static nl.toefel.patan.singlethreadedimpl.TimingHelper.assertClose;
 import static nl.toefel.patan.singlethreadedimpl.AssertionHelper.*;
+import static nl.toefel.patan.singlethreadedimpl.TimingHelper.assertClose;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.junit.Assert.fail;
@@ -78,7 +78,6 @@ public abstract class StatisticsApiTestBase {
 
 		TimingHelper.expensiveMethodTakingMillis(100);
 		double elapsedMillis = stats.recordElapsedTime("test.duration", stopwatch);
-		long elapsedNanos = stopwatch.elapsedNanos(); // should be a few nanos more then elapsedMillis
 
 		StatisticalDistribution record = stats.findDuration("test.duration");
 
@@ -90,26 +89,9 @@ public abstract class StatisticsApiTestBase {
 		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
 
 		assertClose("testRecordElapsedTime", 1d, 100d, elapsedMillis);
-		assertThat((double) elapsedNanos > elapsedMillis * 1000d * 1000d);
 	}
 
-	@Test
-	public void testRecordElapsedNanos() {
-		Stopwatch stopwatch = stats.startStopwatch();
-
-		TimingHelper.expensiveMethodTakingMillis(100);
-		long recoredNanos = stats.recordElapsedNanos("test.duration.nanos", stopwatch);
-		long elapsedNanos = stopwatch.elapsedNanos();
-
-		StatisticalDistribution record = stats.findDuration("test.duration.nanos");
-
-		assertThat((double) recoredNanos)
-				.isEqualTo(record.getMinimum())
-				.isEqualTo(record.getMaximum());
-		assertThat(record.getMean()).isCloseTo(elapsedNanos, within(1000000.0));
-		// other tests test the distribution in more detail
-	}
-
+	// This test asserts ForeverRunningStopwatch.elapsedNanos() is safe for numerical overflow.
 	@Test
 	public void testNanosOverflowOK() {
 		long t0 = Long.MAX_VALUE - 1L;
@@ -131,19 +113,6 @@ public abstract class StatisticsApiTestBase {
 		assertThat(record.getMean()).isCloseTo(100, within(10.001)); // within 10 because timing issues if build is slow
 		assertRecordHasParametersWithin(record, 1, 100, 100, 100, 20);
 		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
-	}
-
-	@Test
-	public void testRecordElapsedNanosRunnable() {
-		stats.recordElapsedNanos("test.duration.nano", new Runnable() {
-			@Override
-			public void run() {
-				TimingHelper.expensiveMethodTakingMillis(100);
-			}
-		});
-		StatisticalDistribution record = stats.findDuration("test.duration.nano.ok");
-		assertThat(record.getMinimum()).isEqualTo(record.getMaximum());
-		assertThat(record.getMean()).isCloseTo(100000000, within(1000000.0));
 	}
 
 	@Test
@@ -181,22 +150,6 @@ public abstract class StatisticsApiTestBase {
 		StatisticalDistribution record = stats.findDuration("test.duration.ok");
 		assertRecordHasParametersWithin(record, 1, elapsedGuess, elapsedGuess, elapsedGuess, 40);
 		assertThat(record.getStdDeviation()).as("standardDeviation").isEqualTo(Double.NaN);
-	}
-
-	@Test
-	public void testRecordElapsedNanosTimeTask() {
-		String retValue;// = stats.recordElapsedTime("test.duration", () ->
-		// expensiveMethodTakingMillis(100));
-		retValue = stats.recordElapsedNanos("test.duration.nano", new TimedTask<String>() {
-			@Override
-			public String get() {
-				return TimingHelper.expensiveMethodTakingMillis(100);
-			}
-		});
-		assertThat(retValue).isEqualTo("hi");
-		StatisticalDistribution record = stats.findDuration("test.duration.nano.ok");
-		assertThat(record.getMinimum()).isEqualTo(record.getMaximum());
-		assertThat(record.getMean()).isCloseTo(100000000, within(1000000.0));
 	}
 
 	@Test

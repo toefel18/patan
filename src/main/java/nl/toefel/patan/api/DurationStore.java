@@ -37,20 +37,9 @@ public interface DurationStore extends Resettable {
 	 *
 	 * @param eventName name to store the elapsed time under
 	 * @param stopwatch the {@link Stopwatch} that measures the elapsed time
-	 * @return the recorded elapsed millis
+	 * @return the recorded elapsed time in millis with nanos precision. (see {@link Stopwatch#elapsedMillis()}
 	 */
 	double recordElapsedTime(String eventName, Stopwatch stopwatch);
-
-	/**
-	 * Records the elapsed time in nanos and merges the result into the statistical distribution that is identified by the given name.
-	 * If no statistical distribution exists with the given name, it is created. The value that is read from the stopwatch is returned.
-	 *
-	 * @param eventName name to store the elapsed time under
-	 * @param stopwatch the {@link Stopwatch} that measures the elapsed time
-	 * @return the recorded elapsed nanos
-	 */
-	long recordElapsedNanos(String eventName, Stopwatch stopwatch);
-
 
 	/**
 	 * Finds the current statistical distribution for the recorded durations under the given name. If the name has not been found,
@@ -129,60 +118,4 @@ public interface DurationStore extends Resettable {
 	 * @param runnable the runnable to run
 	 */
 	void recordElapsedTime(String eventName, Runnable runnable);
-
-
-	/**
-	 * Runs the operation wrapped in a {@link TimedTask} and records it's execution duration in nanos when finished under the given eventName,
-	 * the postfix of '.ok' or '.failure' separates their measurements.
-	 *
-	 * Java 8 API Extension. This allows for short readable code.
-	 *
-	 * return recordElapsedNanos("someMethod", someMethod);
-	 *
-	 * which is equivalent to: <code>
-	 *      Stopwatch stopwatch = startStopwatch();
-	 *      try{
-	 *               T val = someMethod();
-	 *               recordElapsedNanos("someMethod.ok", stopwatch);
-	 *               return val;
-	 *      }catch(Exception e){
-	 *               recordElapsedNanos("someMethod.failed", stopwatch);
-	 *               throw e;
-	 *      }
-	 *
-	 * </code>
-	 *
-	 * @see DurationStore#recordElapsedNanos(String, Runnable) for void lambda
-	 *
-	 * @param <T> the return type of the measured task
-	 * @param eventName name to store the elapsed time under
-	 * @param task the task to run
-	 * @return the result of {@link TimedTask#get()}
-	 */
-	<T> T recordElapsedNanos(String eventName, TimedTask<T> task);
-
-	/**
-	 * Runs the operation wrapped in a {@link Runnable} and records it's execution duration in nanos when finished under the given eventName,
-	 * the postfix of '.ok' or '.failure' separates their measurements.
-	 *
-	 * recordElapsedNanos("someMethod", someMethod);
-	 *
-	 * which is equivalent to: <code>
-	 *      Stopwatch stopwatch = startStopwatch();
-	 *      try{
-	 *               someMethod();
-	 *               recordElapsedNanos("someMethod.ok", stopwatch);
-	 *      }catch(Exception e){
-	 *               recordElapsedNanos("someMethod.failed", stopwatch);
-	 *               throw e;
-	 *      }
-	 *
-	 * </code>
-	 *
-	 * @see DurationStore#recordElapsedNanos(String, TimedTask) for Lambda with return
-	 *
-	 * @param eventName name to store the elapsed time under
-	 * @param runnable the runnable to run
-	 */
-	void recordElapsedNanos(String eventName, Runnable runnable);
 }
