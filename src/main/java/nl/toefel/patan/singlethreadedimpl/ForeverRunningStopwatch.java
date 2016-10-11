@@ -40,8 +40,7 @@ public class ForeverRunningStopwatch implements Stopwatch {
 		return elapsedNanos() / MEGA;
 	}
 
-	@Override
-	public long elapsedNanos() {
-		return System.nanoTime() - nanosAtStart;
+	private long elapsedNanos() {
+		return System.nanoTime() - nanosAtStart; // see warning for numerical overflow at System.nanoTime()
 	}
 }
