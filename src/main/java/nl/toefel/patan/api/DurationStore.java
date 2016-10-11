@@ -37,17 +37,12 @@ public interface DurationStore extends Resettable {
 	 *
 	 * @param eventName name to store the elapsed time under
 	 * @param stopwatch the {@link Stopwatch} that measures the elapsed time
-	 * @return the recorded elapsed millis
+	 * @return the recorded elapsed time in millis
 	 */
 	double recordElapsedTime(String eventName, Stopwatch stopwatch);
 
 	/**
-	 * Records the elapsed time in nanos and merges the result into the statistical distribution that is identified by the given name.
-	 * If no statistical distribution exists with the given name, it is created. The value that is read from the stopwatch is returned.
-	 *
-	 * @param eventName name to store the elapsed time under
-	 * @param stopwatch the {@link Stopwatch} that measures the elapsed time
-	 * @return the recorded elapsed nanos
+	 * Idem as {@link #recordElapsedTime(String, Stopwatch)} but returns elapsed time in nanos instead of millis.
 	 */
 	long recordElapsedNanos(String eventName, Stopwatch stopwatch);
 
