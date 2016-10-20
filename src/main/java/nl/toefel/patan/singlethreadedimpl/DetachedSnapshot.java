@@ -4,6 +4,10 @@ import nl.toefel.patan.api.Snapshot;
 import nl.toefel.patan.api.StatisticalDistribution;
 
 import java.util.Map;
+import java.util.Properties;
+
+import static nl.toefel.patan.singlethreadedimpl.MavenPropertiesLoader.ARTIFACT_ID;
+import static nl.toefel.patan.singlethreadedimpl.MavenPropertiesLoader.VERSION;
 
 /**
  * Contains a detached snapshot of the collected data. None of the fields can be null.
@@ -24,13 +28,14 @@ public class DetachedSnapshot implements Snapshot {
 	 */
 	private final Map<String, StatisticalDistribution> samples;
 
+
 	/**
 	 * @param samples cannot be null
 	 * @param occurrences cannot be null
 	 * @param durations cannot be null
 	 */
 	public DetachedSnapshot(final Map<String, StatisticalDistribution> samples, final Map<String, Long> occurrences, final Map<String, StatisticalDistribution> durations) {
-		timestampTaken = System.currentTimeMillis();
+		this.timestampTaken = System.currentTimeMillis();
 		this.samples = samples;
 		this.occurrences = occurrences;
 		this.durations = durations;
@@ -82,5 +87,15 @@ public class DetachedSnapshot implements Snapshot {
 
 	private StatisticalDistribution getOrEmpty(StatisticalDistribution distribution) {
 		return distribution == null ? ImmutableStatisticalDistribution.createEmpty() : distribution;
+	}
+
+	@Override
+	public String getVersion() {
+		try {
+			Properties props = MavenPropertiesLoader.load();
+			return props.getProperty(ARTIFACT_ID) + "-" + props.getProperty(VERSION);
+		} catch (Exception ex) {
+			return ex.toString(); // patan doesnt log nor should throw an exception if no version can be found, so output the exception to give some clue on why it failed
+		}
 	}
 }

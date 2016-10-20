@@ -18,7 +18,10 @@
 
 package nl.toefel.patan;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.toefel.patan.api.*;
+import nl.toefel.patan.singlethreadedimpl.ImmutableStatisticalDistribution;
 import nl.toefel.patan.singlethreadedimpl.TimingHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -293,12 +296,13 @@ public abstract class StatisticsApiTestBase {
 	}
 
 	@Test
-	public void testGetSnapshotWithSameOccurrenceAsStat() {
+	public void testGetSnapshotWithSameOccurrenceAsStat() throws JsonProcessingException {
 		stats.addOccurrence("test.test");
 		stats.addSample("test.test", 5);
 		stats.recordElapsedTime("test.test", stats.startStopwatch());
 
 		Snapshot snapshot = stats.getSnapshot();
+        assertThat(toJson(snapshot)).contains("\"version\":");
 
 		assertThat(snapshot.getOccurrences()).containsKeys("test.test");
 		assertThat(snapshot.getSamples()).containsKeys("test.test");
@@ -307,6 +311,11 @@ public abstract class StatisticsApiTestBase {
 		assertThat(snapshot.getOccurrences().get("test.test")).isEqualTo(1L);
 		assertRecordHasExactParameters(snapshot.getSamples().get("test.test"), 1, 5, 5, 5, 0, Double.NaN);
 		assertRecordHasParametersWithin(snapshot.getDurations().get("test.test"), 1, 0, 0, 0, 10);
+	}
+
+	private String toJson(Snapshot snapshot) throws JsonProcessingException {
+		ObjectMapper mapper = new ObjectMapper();
+		return mapper.writeValueAsString(snapshot);
 	}
 
 	@Test
