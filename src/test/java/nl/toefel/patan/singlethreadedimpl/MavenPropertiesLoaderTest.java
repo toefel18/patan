@@ -41,7 +41,7 @@ public class MavenPropertiesLoaderTest {
 
     @Test
     public void load() throws IOException {
-        Properties props = MavenPropertiesLoader.load(new FileInputStream("target/maven-archiver/pom.properties"));
+        Properties props = MavenPropertiesLoader.load();
         assertEquals(GROUP, props.getProperty(GROUP_ID));
         assertEquals(ARTIFACT, props.getProperty(ARTIFACT_ID));
         assertTrue(props.containsKey(VERSION));

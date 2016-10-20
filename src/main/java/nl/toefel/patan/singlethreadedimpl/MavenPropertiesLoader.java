@@ -13,13 +13,15 @@ class MavenPropertiesLoader {
     static String GROUP = "nl.toefel";
     static String ARTIFACT = "patan";
 
+    static String POM_PROPERTIES_PATH = String.format("/META-INF/maven/%s/%s/pom.properties", GROUP, ARTIFACT);
+
 
 	private MavenPropertiesLoader() {
 		// uitil class
 	}
 
 	static Properties load() throws IOException {
-        return load(MavenPropertiesLoader.class.getResourceAsStream(String.format("/META-INF/maven/%s/%s/pom.properties", GROUP, ARTIFACT)));
+        return load(MavenPropertiesLoader.class.getResourceAsStream(POM_PROPERTIES_PATH));
 	}
 
 	static Properties load(InputStream stream) throws IOException {
