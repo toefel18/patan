@@ -10,14 +10,14 @@ class MavenPropertiesLoader {
     static String ARTIFACT_ID = "artifactId";
     static String VERSION = "version";
 
-    static String GROUP = "nl.toefel";
-    static String ARTIFACT = "patan";
+    static String GROUP_ID_VALUE = "nl.toefel";
+    static String ARTIFACT_ID_VALUE = "patan";
 
-    static String POM_PROPERTIES_PATH = String.format("/META-INF/maven/%s/%s/pom.properties", GROUP, ARTIFACT);
+    static String POM_PROPERTIES_PATH = String.format("/META-INF/maven/%s/%s/pom.properties", GROUP_ID_VALUE, ARTIFACT_ID_VALUE);
 
 
 	private MavenPropertiesLoader() {
-		// uitil class
+		// util class
 	}
 
 	static Properties load() throws IOException {
@@ -34,5 +34,9 @@ class MavenPropertiesLoader {
 			}
 		}
 		return props;
+	}
+
+	static String getArtifactIdAndVersion(Properties props) {
+		return props.getProperty(ARTIFACT_ID) + "-" + props.getProperty(VERSION);
 	}
 }

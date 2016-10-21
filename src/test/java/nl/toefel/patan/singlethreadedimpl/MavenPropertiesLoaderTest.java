@@ -20,7 +20,6 @@ package nl.toefel.patan.singlethreadedimpl;
 
 import org.junit.Test;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -42,8 +41,10 @@ public class MavenPropertiesLoaderTest {
     @Test
     public void load() throws IOException {
         Properties props = MavenPropertiesLoader.load();
-        assertEquals(GROUP, props.getProperty(GROUP_ID));
-        assertEquals(ARTIFACT, props.getProperty(ARTIFACT_ID));
+        assertEquals(GROUP_ID_VALUE, props.getProperty(GROUP_ID));
+        assertEquals(ARTIFACT_ID_VALUE, props.getProperty(ARTIFACT_ID));
         assertTrue(props.containsKey(VERSION));
+        assertTrue(MavenPropertiesLoader.getArtifactIdAndVersion(props).startsWith(ARTIFACT_ID_VALUE));
+        assertTrue(MavenPropertiesLoader.getArtifactIdAndVersion(props).endsWith(props.getProperty(VERSION)));
     }
 }
