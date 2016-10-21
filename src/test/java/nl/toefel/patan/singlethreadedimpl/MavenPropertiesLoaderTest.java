@@ -44,7 +44,7 @@ public class MavenPropertiesLoaderTest {
         assertEquals(GROUP_ID_VALUE, props.getProperty(GROUP_ID));
         assertEquals(ARTIFACT_ID_VALUE, props.getProperty(ARTIFACT_ID));
         assertTrue(props.containsKey(VERSION));
-        assertTrue(MavenPropertiesLoader.getArtifactIdAndVersion(props).startsWith(ARTIFACT_ID_VALUE));
-        assertTrue(MavenPropertiesLoader.getArtifactIdAndVersion(props).endsWith(props.getProperty(VERSION)));
+        String artifactIdAndVersion = MavenPropertiesLoader.getArtifactIdAndVersion(props);
+        assertEquals(ARTIFACT_ID_VALUE + "-" + props.getProperty(VERSION), artifactIdAndVersion);
     }
 }
