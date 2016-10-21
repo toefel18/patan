@@ -24,7 +24,7 @@ class MavenPropertiesLoader {
         return load(MavenPropertiesLoader.class.getResourceAsStream(POM_PROPERTIES_PATH));
 	}
 
-	static Properties load(InputStream stream) throws IOException {
+    static Properties load(InputStream stream) throws IOException {
 		Properties props = new Properties();
 		try {
 			props.load(stream);
