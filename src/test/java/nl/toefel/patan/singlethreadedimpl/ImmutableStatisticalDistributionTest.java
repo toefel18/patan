@@ -56,7 +56,11 @@ public class ImmutableStatisticalDistributionTest {
 
 	@Test
 	public void testStatistics() {
-		ImmutableStatisticalDistribution dist = createTestDistribution();
+		testStatistics(createTestDistribution());
+		testStatistics(createTestDistributionInverse());
+	}
+
+	private void testStatistics(ImmutableStatisticalDistribution dist) {
 		assertClose("min", 1d, dist.getMinimum());
 		assertClose("man", 10d, dist.getMaximum());
 		assertClose("mean", 5.5d, dist.getMean());
@@ -67,6 +71,14 @@ public class ImmutableStatisticalDistributionTest {
 	private ImmutableStatisticalDistribution createTestDistribution() {
 		ImmutableStatisticalDistribution dist = (ImmutableStatisticalDistribution) ImmutableStatisticalDistribution.createEmpty();
 		for (int i = 1; i <= 10; i++) {
+			dist = (ImmutableStatisticalDistribution) dist.newWithExtraSample(i);
+		}
+		return dist;
+	}
+
+	private ImmutableStatisticalDistribution createTestDistributionInverse() {
+		ImmutableStatisticalDistribution dist = (ImmutableStatisticalDistribution) ImmutableStatisticalDistribution.createEmpty();
+		for (int i = 10; i >= 1; i--) {
 			dist = (ImmutableStatisticalDistribution) dist.newWithExtraSample(i);
 		}
 		return dist;
