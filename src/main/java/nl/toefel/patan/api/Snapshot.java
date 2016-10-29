@@ -45,4 +45,6 @@ public interface Snapshot {
 	 * @return the sample distribution or an empty distribution if none
 	 */
 	StatisticalDistribution findSampleDistribution(String name);
+
+	String getVersion();
 }
